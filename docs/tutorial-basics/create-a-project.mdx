@@ -1,0 +1,79 @@
+---
+sidebar_position: 2
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# Create a Project
+
+## Install the Basketry CLI:
+
+The Basketry CLI is the main tool for creating and running a Basketry project. Install the `basketry` package to get started.
+
+<Tabs groupId="package-manager">
+  <TabItem value="npm" label="npm" default>
+
+```sh
+npm install basketry
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn add basketry
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```sh
+pnpm add basketry
+```
+
+  </TabItem>
+</Tabs>
+
+## Initialize the project
+
+Run the `init` command to create a new Basketry project:
+
+<Tabs groupId="package-manager">
+  <TabItem value="npm" label="npm" default>
+
+```sh
+npx basketry init
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn dlx basketry init
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```sh
+pnpm dlx basketry init
+```
+
+  </TabItem>
+</Tabs>
+
+This will create a `basketry.config.json` file in the root of your project:
+
+```json title="basketry.config.json"
+{
+  "source": "",
+  "parser": "",
+  "rules": [],
+  "generators": [],
+  "output": "",
+  "options": {
+    "basketry": {}
+  }
+}
+```

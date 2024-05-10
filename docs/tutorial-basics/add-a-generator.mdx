@@ -1,0 +1,55 @@
+---
+sidebar_position: 4
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# Add a Generator
+
+## TypeScript
+
+We want to generate TypeScript types and interfaces that represent our source service definition. We'll continue by installing the `@basketry/typescript` generator:
+
+<Tabs groupId="package-manager">
+  <TabItem value="npm" label="npm" default>
+
+```sh
+npm install @basketry/typescript
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn add @basketry/typescript
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```sh
+pnpm add @basketry/typescript
+```
+
+  </TabItem>
+</Tabs>
+
+## Update the configuration
+
+Update the `generators` property in your `basketry.config.json` file to include the `@basketry/typescript` generator. Also update the `output` property to point to the directory where you want to save the generated files:
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "rules": [],
+  "generators": ["@basketry/typescript"],
+  "output": "src",
+  "options": {
+    "basketry": {}
+  }
+}
+```
+
+Now, Basketry knows where to source your service definition and how to parse it. Next, we'll generate some code!

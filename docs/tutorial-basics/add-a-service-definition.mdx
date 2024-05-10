@@ -1,0 +1,93 @@
+---
+sidebar_position: 3
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# Add a Service Definition
+
+## Petstore Example
+
+Let's start by downloading an existing Service Definition. Swagger.io offers an example Swagger doc defining an example pet store service: [Petstore](https://petstore3.swagger.io/). Download the [source json file](https://petstore3.swagger.io/api/v3/openapi.json) as `petstore.json` and put it in the root folder of your project:
+
+<Tabs>
+  <TabItem value="curl" label="cURL" default>
+
+```sh
+curl https://petstore3.swagger.io/api/v3/openapi.json -o petstore.json
+```
+
+  </TabItem>
+  <TabItem value="wget" label="wget">
+
+```sh
+wget https://petstore3.swagger.io/api/v3/openapi.json -O petstore.json
+```
+
+  </TabItem>
+</Tabs>
+
+## Update the `source` property
+
+Update the `source` property in your `basketry.config.json` file to point to the `petstore.json` file:
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "",
+  "rules": [],
+  "generators": [],
+  "output": "",
+  "options": {
+    "basketry": {}
+  }
+}
+```
+
+## Install a parser:
+
+By default, Basketry doesn't know about OpenAPI v3—Basketry needs a parser to convert the source file into a format usable by the rest of the pipeline. Install the `@basketry/openapi-3` package to parse OpenAPI 3.0 documents:
+
+<Tabs groupId="package-manager">
+  <TabItem value="npm" label="npm" default>
+
+```sh
+npm install @basketry/openapi-3
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn add @basketry/openapi-3
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```sh
+pnpm add @basketry/openapi-3
+```
+
+  </TabItem>
+</Tabs>
+
+## Update the `parser` property
+
+Update the `parser` property in your `basketry.config.json` file to point to the `@basketry/openapi-3` package:
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "rules": [],
+  "generators": [],
+  "output": "",
+  "options": {
+    "basketry": {}
+  }
+}
+```
+
+Now, Basketry knows where to source your service definition and how to parse it. Next, we'll generate some code!
