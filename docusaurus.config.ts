@@ -39,15 +39,13 @@ const config: Config = {
           sidebarPath: "./sidebars.ts",
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl:
-            "https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/",
+          editUrl: "https://github.com/basketry/basketry.github.io/blob/main",
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl:
-            "https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/",
+          editUrl: "https://github.com/basketry/basketry.github.io/blob/main",
         },
         theme: {
           customCss: "./src/css/custom.css",
@@ -70,8 +68,9 @@ const config: Config = {
           type: "docSidebar",
           sidebarId: "tutorialSidebar",
           position: "left",
-          label: "Tutorial",
+          label: "Docs",
         },
+        { to: "docs/components", label: "Components", position: "left" },
         { to: "/blog", label: "Blog", position: "left" },
         {
           href: "https://github.com/basketry",
