@@ -1,0 +1,55 @@
+---
+sidebar_position: 5
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# Create a Build Script
+
+## Package.json
+
+Add a `basketry` script to your `package.json` file that runs the Basketry CLI:
+
+```json title="package.json"
+{
+  "name": "my-project",
+  "scripts": {
+    "basketry": "basketry"
+  },
+  "dependencies": {
+    "@basketry/openapi-3": "^0.1.0",
+    "@basketry/typescript": "^0.1.0"
+  }
+}
+```
+
+Now you can run the `basketry` script to generate code from your service definition:
+
+<Tabs groupId="package-manager">
+  <TabItem value="npm" label="npm" default>
+
+```sh
+npm run basketry
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn basketry
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```sh
+pnpm run basketry
+```
+
+  </TabItem>
+</Tabs>
+
+Your `src` directory (the `output` specified in `basketry.config.json`) should now contain TypeScript files that represent your OpenAPI service definition. You can now use these files in your project!
+
+Next, let's add some rules to enforce consistency in our service design.
