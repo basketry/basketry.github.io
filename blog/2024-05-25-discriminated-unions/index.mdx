@@ -1,0 +1,634 @@
+---
+slug: discriminated-unions
+title: Cleaner, Safer Code with Discriminated Unions
+description: Learn how to improve your code quality and type safety with discriminated unions, and use Basketry to streamline the process.
+authors: skonves
+tags: [updates, how-to, design-patterns, openapi, typescript]
+image: /img/tatiana-rodriguez-qiHYnaXjP8E-unsplash.jpg
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# Cleaner, Safer Code with Discriminated Unions
+
+Learn how to improve your code quality and type safety with discriminated unions, and use Basketry to streamline the process.
+
+## What are discriminated unions?
+
+Discriminated unions, also known as tagged unions or algebraic data types, are a powerful feature in many modern programming languages that allow you to define a type that can take on several different but related forms.
+
+![Photo of a large, white sign with the letters 'UNION' against a light blue sky, mounted on top of a white brick building.](tatiana-rodriguez-qiHYnaXjP8E-unsplash.jpg)
+
+{/* truncate */}
+
+### Simple Unions
+
+For example, consider a few shapes. A circle has a radius. A rectangle has a width and height. A Polygon has a number of sides and a length for each side. We could represent each of those types with TypeScript:
+
+```ts title="shapes.ts"
+export type Circle = {
+  radius: number;
+};
+
+export type Rectangle = {
+  width: number;
+  height: number;
+};
+```
+
+A type union is a type that can represent one of several distinct variants. You can think of a union as an "or" relationship between two or more other types. We could define a `Shape` type as a union of `Circle` and `Rectangle`.
+
+```ts title="shapes.ts"
+export type Shape = Circle | Rectangle;
+```
+
+By doing so, we can now write functions that operate on `Shape` types. For example, we could write a function that calculates the area of a shape. Notice how we have to check for the presence of specific properties on the shape to determine which type it is before we can calculate the area.
+
+```ts title="geometry.ts"
+import { Shape } from "./shapes";
+
+export function area(shape: Shape): number {
+  if ("radius" in shape) {
+    return Math.PI * shape.radius ** 2;
+  } else ("width" in shape) {
+    return shape.width * shape.height;
+  }
+}
+```
+
+### Discriminated Unions
+
+Discriminated unions are a way to make working with unions easier. They allow you to define a common property that is unique to each type in the union. This property is called a "discriminator." By checking the value of the discriminator, you can determine which specific type you are working with.
+
+```ts title="shapes.ts"
+export type Circle = {
+  type: "circle";
+  radius: number;
+};
+
+export type Rectangle = {
+  type: "rectangle";
+  width: number;
+  height: number;
+};
+
+export type Shape = Circle | Rectangle;
+```
+
+Now, in each type, the `type` property is a constant value that is unique to that particular shape. This allows us to write functions that operate on `Shape` types without having to check for the presence of specific properties.
+
+```ts title="geometry.ts"
+import { Shape } from "./shapes";
+
+export function area(shape: Shape): number {
+  switch (shape.type) {
+    case "circle":
+      return Math.PI * shape.radius ** 2;
+    case "rectangle":
+      return shape.width * shape.height;
+  }
+}
+```
+
+With discriminated unions, the TypeScript compiler now has a much better understanding of how to differentiate (or discriminate, hence the name) between the members of a union type. This allows it to provide better type checking and gives developers a better, more intuitive way to work with specific types within a union.
+
+## Unions with OpenAPI
+
+We've looked at how discriminated unions work in TypeScript, but they are also a powerful feature in OpenAPI. Discriminated unions in OpenAPI allow you to define a single object schema that can take on multiple forms. This is useful when you want to define a method that can accept a parameter that is one of many different types of objects.
+
+### Simple unions
+
+Here is an example OpenAPI document that defines our shapes: `Circle` and `Rectangle`. The `Shape` schema uses the `oneOf` operator to indicate that a `Shape` can be "one of" either `Circle` or `Rectangle`.
+
+<Tabs groupId="json-vs-yaml">
+  <TabItem value="yaml" label="yaml">
+
+```yaml title="openapi.yaml"
+openapi: 3.0.0
+info:
+  title: Shapes API
+  version: 1.0.0
+components:
+  schemas:
+    Circle:
+      type: object
+      properties:
+        radius:
+          type: number
+      required: [radius]
+    Rectangle:
+      type: object
+      properties:
+        width:
+          type: number
+        height:
+          type: number
+      required: [width, height]
+    Shape:
+      oneOf:
+        - $ref: "#/components/schemas/Circle"
+        - $ref: "#/components/schemas/Rectangle"
+```
+
+  </TabItem>
+  <TabItem value="json" label="json" default>
+
+```json title="openapi.json"
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Shapes API",
+    "version": "1.0.0"
+  },
+  "components": {
+    "schemas": {
+      "Circle": {
+        "type": "object",
+        "properties": {
+          "radius": { "type": "number" }
+        },
+        "required": ["radius"]
+      },
+      "Rectangle": {
+        "type": "object",
+        "properties": {
+          "width": { "type": "number" },
+          "height": { "type": "number" }
+        },
+        "required": ["width", "height"]
+      },
+      "Shape": {
+        "oneOf": [
+          { "$ref": "#/components/schemas/Circle" },
+          { "$ref": "#/components/schemas/Rectangle" }
+        ]
+      }
+    }
+  }
+}
+```
+
+  </TabItem>
+</Tabs>
+
+### Discriminated unions
+
+We can make this a discriminated union by adding a `discriminator` property to the `Shape` schema. The `discriminator` property is used to indicate which property in the object should be used to determine the type of the object. We also need to add a `type` property to each of our shapes. We can specify constant values by using the `enum` keyword with a single option.
+
+<Tabs groupId="json-vs-yaml">
+  <TabItem value="yaml" label="yaml">
+
+```yaml title="openapi.yaml"
+openapi: 3.0.0
+info:
+  title: Shapes API
+  version: 1.0.0
+components:
+  schemas:
+    Circle:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [circle]
+        radius:
+          type: number
+      required: [type, radius]
+    Rectangle:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [rectangle]
+        width:
+          type: number
+        height:
+          type: number
+      required: [type, width, height]
+    Shape:
+      discriminator:
+        propertyName: type
+      oneOf:
+        - $ref: "#/components/schemas/Circle"
+        - $ref: "#/components/schemas/Rectangle"
+```
+
+  </TabItem>
+  <TabItem value="json" label="json" default>
+
+```json title="openapi.json"
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Shapes API",
+    "version": "1.0.0"
+  },
+  "components": {
+    "schemas": {
+      "Circle": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["circle"]
+          },
+          "radius": {
+            "type": "number"
+          }
+        },
+        "required": ["type", "radius"]
+      },
+      "Rectangle": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["rectangle"]
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          }
+        },
+        "required": ["type", "width", "height"]
+      },
+      "Shape": {
+        "discriminator": {
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Circle"
+          },
+          {
+            "$ref": "#/components/schemas/Rectangle"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+  </TabItem>
+</Tabs>
+
+By using discriminated unions in OpenAPI, you can define more complex object schemas that can take on multiple forms, making your API definitions more expressive and easier to work with.
+
+## Discriminated Unions with Basketry
+
+Basketry allows you to generate code from service definitions like OpenAPI. It supports discriminated unions, making it easy to work with complex object schemas in your TypeScript code. If you haven't already, check out the [Basketry tutorial](/docs/category/tutorial---basics) to get up to speed in less than 5 minutes.
+
+The following commands will install Basketry and the necessary components to generate TypeScript code from an OpenAPI document:
+
+<Tabs groupId="package-manager">
+  <TabItem value="npm" label="npm" default>
+
+```sh
+npm install basketry @basketry/openapi-3 @basketry/typescript
+npx basketry init
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn add basketry @basketry/openapi-3 @basketry/typescript
+yarn dlx basketry init
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```sh
+pnpm add basketry @basketry/openapi-3 @basketry/typescript
+pnpm dlx basketry init
+```
+
+  </TabItem>
+</Tabs>
+
+Next update `basketry.config.json`:
+
+```ts title="basketry.config.json"
+{
+  "source": "openapi.yaml",
+  "parser": "@basketry/openapi-3",
+  "generators": ["@basketry/typescript"],
+  "output": "src"
+}
+```
+
+Lastly, run Basketry to generate TypeScript code from your OpenAPI doc:
+
+<Tabs groupId="package-manager">
+  <TabItem value="npm" label="npm" default>
+
+```sh
+npx basketry
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn dlx basketry
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```sh
+pnpm dlx basketry
+```
+
+  </TabItem>
+</Tabs>
+
+This will generate TypeScript code in the `src` directory based on the `Circle`, `Rectangle`, and `Shape` schemas defined in your OpenAPI document. Because `Shape` is a discriminated union, Basketry will also generate [type guard functions](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates) that allow you to determine the specific type of a `Shape` object.
+
+```ts title="src/v1/types.ts"
+// Generated code
+
+export type Circle = {
+  type: "circle";
+  radius: number;
+};
+
+export type Rectangle = {
+  type: "rectangle";
+  width: number;
+  height: number;
+};
+
+export type Shape = Circle | Rectangle;
+
+export function isCircle(obj: Shape): obj is Circle {
+  return obj.type === "circle";
+}
+
+export function isRectangle(obj: Shape): obj is Rectangle {
+  return obj.type === "rectangle";
+}
+```
+
+As you can see, Basketry makes it easy to work with discriminated unions in your TypeScript code, allowing you to take full advantage of this powerful feature in OpenAPI. By generating type guard functions, Basketry helps you write more robust and type-safe code that is easier to maintain and understand and is guaranteed to be in sync with your OpenAPI definitions.
+
+## Practical examples
+
+Let's wrap up with a few real-world examples of how discriminated unions can be used in practice.
+
+### Event handling
+
+In an asynchronous job processing system, various events are triggered as jobs move through different stages of their lifecycle. These events might include job creation, job started, job completed, job failed, and job retried. Each of these events carries different types of data pertinent to the specific state of the job. For example, a "job started" event might include the job ID and timestamp, while a "job failed" event might include the job ID, error message, and failure timestamp.
+
+By using discriminated unions, developers can define a type-safe way to handle these distinct event types within the job processor. This approach ensures that each event type can be easily identified and processed correctly, with the appropriate data available. This, in turn, reduces the risk of runtime errors and improves code maintainability.
+
+Consider the following JSON schema that defines a few message types:
+
+```json title="events.json"
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "discriminator": {
+    "propertyName": "type"
+  },
+  "oneOf": {
+    "$ref": "#/definitions/job_created",
+    "$ref": "#/definitions/job_completed",
+    "$ref": "#/definitions/job_failed"
+  },
+  "definitions": {
+    "job_created": {
+      "type": "object",
+      "required": ["type", "id", "widget_id"],
+      "properties": {
+        "type": { "type": "string", "const": "job_created" },
+        "job_id": { "type": "string" },
+        "widget_id": { "type": "string" },
+        "user_note": { "type": "string" }
+      }
+    },
+    "job_completed": {
+      "type": "object",
+      "required": ["type", "id", "timestamp", "widget_id"],
+      "properties": {
+        "type": { "type": "string", "const": "job_created" },
+        "job_id": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    },
+    "job_failed": {
+      "type": "object",
+      "required": ["type", "id", "timestamp", "widget_id"],
+      "properties": {
+        "type": { "type": "string", "const": "job_created" },
+        "job_id": { "type": "string" },
+        "message": { "type": "string" }
+      }
+    }
+  }
+}
+```
+
+We can see that each of the message types has a `type` property that is unique to that message type. Furthermore, the schema indicates that this type is to be used to differentiate between types. This allows us to easily determine the type of message we are working with and extract the relevant data.
+
+### Messaging systems
+
+OpenAI's [threads API](https://platform.openai.com/docs/api-reference/messages) is a great example of using discriminated unions to define a [message schema](https://platform.openai.com/docs/api-reference/messages/object). As of the time of writing, each message in a thread can have a few different types of content: text, a file ID, or the URL to an image. By using a discriminated union, OpenAI can define a single message schema that can take on multiple forms, making it easier to work with messages in the API.
+
+Here is the message content definition represented with TypeScript types:
+
+```ts title="message.ts"
+export type Content = TextContent | ImageFileContent | ImageUrlContent;
+
+export type TextContent = {
+  type: "text";
+  text: {
+    value: string;
+    annotations: any[]; // In practice, this is actually another discriminated union
+  };
+};
+
+export type ImageFileContent = {
+  type: "image_file";
+  image_file: {
+    file_id: string;
+    detail: "low" | "high";
+  };
+};
+
+export type ImageUrlContent = {
+  type: "image_url";
+  image_url: {
+    url: string;
+    detail: "low" | "high";
+  };
+};
+```
+
+In this case, the `type` property is used as the discriminator to differentiate between the different types of content. This allows developers to switch on the `type` property when doing things like rendering messages in a UI or processing messages in a backend service.
+
+### API responses
+
+Thus far, we've been working with discriminators that have all been strings. However, discriminators can be any type of value, including numbers or booleans. This can be useful when defining API responses may return either data or an array of errors based on the success of the request.
+
+Here is an example of using a boolean discriminator to define an API response schema:
+
+<Tabs groupId="json-vs-yaml">
+  <TabItem value="yaml" label="yaml">
+
+```yaml title="openapi.yaml"
+openapi: 3.0.0
+info:
+  title: Widgets API
+  version: 1.0.0
+paths:
+  /widgets:
+    get:
+      responses:
+        default:
+          $ref: "#/components/responses/ApiResponse"
+components:
+  responses:
+    ApiResponse:
+      description: A response that contains either data or errors
+      content:
+        application/json:
+          schema:
+            discriminator:
+              propertyName: success
+            oneOf:
+              - type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Widget"
+              - type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum: [false]
+                  errors:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Error"
+  schemas:
+    Widget:
+      type: object
+      properties:
+        id:
+          type: string
+        weight:
+          type: number
+      required: [id, weight]
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+```
+
+  </TabItem>
+  <TabItem value="json" label="json" default>
+
+```json title="openapi.json"
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Widgets API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/widgets": {
+      "get": {
+        "responses": {
+          "default": {
+            "$ref": "#/components/responses/ApiResponse"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "ApiResponse": {
+        "description": "A response that contains either data or errors",
+        "content": {
+          "application/json": {
+            "schema": {
+              "discriminator": {
+                "propertyName": "success"
+              },
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "enum": [true] },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Widget"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "enum": [false] },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Error"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Widget": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "weight": { "type": "number" }
+        },
+        "required": ["id", "weight"]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" }
+        },
+        "required": ["message"]
+      }
+    }
+  }
+}
+```
+
+  </TabItem>
+</Tabs>
+
+You can see how the `success` property is used as the discriminator to differentiate between a successful response that contains data and an error response that contains an array of error messages. This allows for a different response type for a successful request versus an unsuccessful request, but the discriminating boolean value provides an easy way for clients (or backend services) to determine which type of response they are working with.
+
+---
+
+Discriminated unions, or tagged unions, let a type handle multiple related forms, like different shapes in TypeScript. They use a "discriminator" property to make type checks easy and improve type safety. In OpenAPI, they help define flexible schemas for better APIs.
+Basketry takes this further by generating type-safe code and type-guard functions from OpenAPI definitions, making your code more reliable and easier to manage. [Give Basketry a try](/docs/category/tutorial---basics) to boost your API projects and see how it simplifies your development!
+
+---
+
+This article was written by a human. Editing and proofreading were performed with the assistance of one or more large language models.
