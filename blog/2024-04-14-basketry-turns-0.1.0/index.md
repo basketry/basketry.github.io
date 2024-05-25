@@ -1,23 +1,29 @@
 ---
 slug: basketry-turns-0.1.0
 title: Basketry turns 0.1.0! 🧺 🎉
+description: Evolving an ecosystem with new features, fixes, and improvements
 authors: skonves
 tags: [updates]
+image: /img/pexels-cottonbro-3171837.jpg
 ---
 
 # Basketry turns 0.1.0! 🧺 🎉
 
+Evolving an ecosystem with new features, fixes, and improvements.
+
 Basketry is the pluggable, service-oriented code-generation pipeline for any language. It starts with a Service Definition (think Swagger/OpenAPI, API Blueprint, etc.) and generates code for your APIs and the applications that consume them.
+
+![Group of people raising their glasses in a toast at a festive celebration, surrounded by golden confetti and warm lighting.](pexels-cottonbro-3171837.jpg)
 
 ## Evolving a pluggable toolchain
 
 The Basketry project is the 3rd or 4th iteration of a toolchain I’ve maintained for the better part of a decade for designing, building, and testing APIs. It started back in the Swagger 2.0 days as a simple tool for defining ExpressJS routes using a “Swagger doc.” The code and architecture are now almost unrecognizable from its long-lost ancestor and it now supports multiple versions of OpenAPI as well as multiple target languages. But nevertheless, it did indeed begin its life as a narrowly focused Swagger v2 tool. For this reason, until recently, it has lacked some features and data structures more closely associated with OpenAPI v3.
 
+<!--truncate-->
+
 Basketry's key architectural feature is its pluggability—all of its parsers, rules, and generators can be composed with any pipeline, so long as they conform to Basketry’s “Intermediate Representation” (aka IR). The upside of this is that Basketry can now serve as an evergreen “long-term evolution” ecosystem. The downside is that extending that core Intermediate Representation can introduce breaking changes to the whole pipeline.
 
 Deploying a breaking change to an ecosystem of over a dozen dependent packages without disrupting development teams is challenging. I recently wrote an article on Demystifying Semver Prereleases that describes this challenge and how prereleases can provide a safe and transparent path forward.
-
-<!--truncate-->
 
 ## CHANGELOG
 
