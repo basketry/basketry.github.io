@@ -4,7 +4,7 @@ title: Basketry turns 0.1.0! 🧺 🎉
 description: Evolving an ecosystem with new features, fixes, and improvements
 authors: skonves
 tags: [updates]
-image: /img/pexels-cottonbro-3171837.jpg
+image: ./img/pexels-cottonbro-3171837.jpg
 ---
 
 # Basketry turns 0.1.0! 🧺 🎉
@@ -13,7 +13,7 @@ Evolving an ecosystem with new features, fixes, and improvements.
 
 Basketry is the pluggable, service-oriented code-generation pipeline for any language. It starts with a Service Definition (think Swagger/OpenAPI, API Blueprint, etc.) and generates code for your APIs and the applications that consume them.
 
-![Group of people raising their glasses in a toast at a festive celebration, surrounded by golden confetti and warm lighting.](pexels-cottonbro-3171837.jpg)
+![Group of people raising their glasses in a toast at a festive celebration, surrounded by golden confetti and warm lighting.](./img/pexels-cottonbro-3171837.jpg)
 
 ## Evolving a pluggable toolchain
 
