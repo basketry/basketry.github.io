@@ -11,7 +11,7 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: "Take Control of Your APIs",
-    Svg: require("@site/static/img/undraw_docusaurus_mountain.svg").default,
+    Svg: require("@site/static/img/undraw_personal_goals_re_iow7.svg").default,
     description: (
       <>
         Basketry lets you take back control of complex systems. Know exactly
@@ -22,7 +22,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: "Focus on What's Important",
-    Svg: require("@site/static/img/undraw_docusaurus_tree.svg").default,
+    Svg: require("@site/static/img/undraw_product_teardown_re_m1pc.svg").default,
     description: (
       <>
         Basketry lets you focus on your product. Automatically generate and
@@ -33,7 +33,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: "Land and Expand",
-    Svg: require("@site/static/img/undraw_docusaurus_react.svg").default,
+    Svg: require("@site/static/img/undraw_building_blocks_re_5ahy.svg").default,
     description: (
       <>
         Basketry grows along with your product. Use included tools to get
