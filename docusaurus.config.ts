@@ -80,7 +80,12 @@ const config: Config = {
           position: "left",
           label: "Docs",
         },
-        { to: "docs/components", label: "Components", position: "left" },
+        {
+          type: "docSidebar",
+          sidebarId: "componentsSidebar",
+          position: "left",
+          label: "Components",
+        },
         { to: "/blog", label: "Blog", position: "left" },
         {
           href: "https://github.com/basketry",
@@ -97,7 +102,11 @@ const config: Config = {
           items: [
             {
               label: "Tutorial",
-              to: "/docs/intro",
+              to: "/docs/tutorial/intro",
+            },
+            {
+              label: "Components",
+              to: "/docs/components/intro",
             },
           ],
         },

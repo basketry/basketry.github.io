@@ -1,0 +1,9 @@
+{
+  "label": "Ruby/Sorbet",
+  "position": 2,
+  "link": {
+    "slug": "/components/generators/sorbet",
+    "type": "generated-index",
+    "description": "Ruby/Sorbet generators"
+  }
+}

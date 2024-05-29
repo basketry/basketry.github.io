@@ -1,0 +1,9 @@
+{
+  "label": "Parsers",
+  "position": 1,
+  "link": {
+    "slug": "/components/parsers",
+    "type": "generated-index",
+    "description": "Included parsers"
+  }
+}

@@ -10,7 +10,7 @@ This guide will take you step-by-step through generating a new service, starting
 
 ## Prerequisites
 
-If you haven't yet, go ahead and read [Introducing Basketry](../blog/introducing-basketry). It gives a full explanation of what Basketry is and what types of problems it solves. It also covers all of the Basketry-related terms that will show up in the guide, such as Service Definitions, Parsers, Rules, Generators, and Intermediate Representation.
+If you haven't yet, go ahead and read [Introducing Basketry](../../blog/introducing-basketry). It gives a full explanation of what Basketry is and what types of problems it solves. It also covers all of the Basketry-related terms that will show up in the guide, such as Service Definitions, Parsers, Rules, Generators, and Intermediate Representation.
 
 We'll talk about installing packages and creating and running scripts. This guide assumes that you already have a working knowledge of NPM or Yarn and know how to use your preferred package manager to perform those actions.
 

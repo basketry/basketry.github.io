@@ -1,0 +1,9 @@
+{
+  "label": "Typescript",
+  "position": 1,
+  "link": {
+    "slug": "/components/generators/typescript",
+    "type": "generated-index",
+    "description": "Typescript generators"
+  }
+}

@@ -1,0 +1,51 @@
+---
+slug: /components/@basketry/rules
+title: Rules
+description: Standard rules provided by Basketry
+sidebar_position: 1
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## Install
+
+<Tabs groupId="package-manager">
+  <TabItem value="npm" label="npm" default>
+
+```sh
+npm install @basketry/rules
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn add @basketry/rules
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```sh
+pnpm add @basketry/rules
+```
+
+  </TabItem>
+</Tabs>
+
+## Basic Usage
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "rules": [
+    "@basketry/rules/lib/array-parameter-length",
+    "@basketry/rules/lib/description",
+    "@basketry/rules/lib/http-status",
+    "@basketry/rules/lib/relay-pagination",
+    "@basketry/rules/lib/string-id"
+  ]
+}
+```
