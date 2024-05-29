@@ -1,0 +1,44 @@
+---
+slug: /components/@basketry/openapi-3
+title: OpenAPI v3
+description: Parse OpenAPI v3 documents (JSON or YAML)
+sidebar_position: 1
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## Install
+
+<Tabs groupId="package-manager">
+  <TabItem value="npm" label="npm" default>
+
+```sh
+npm install @basketry/openapi-3
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn add @basketry/openapi-3
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```sh
+pnpm add @basketry/openapi-3
+```
+
+  </TabItem>
+</Tabs>
+
+## Basic Usage
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3"
+}
+```

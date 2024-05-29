@@ -1,0 +1,45 @@
+---
+slug: /components/@basketry/typescript-auth
+title: Auth
+sidebar_position: 99
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## Install
+
+<Tabs groupId="package-manager">
+  <TabItem value="npm" label="npm" default>
+
+```sh
+npm install @basketry/typescript-auth
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn add @basketry/typescript-auth
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```sh
+pnpm add @basketry/typescript-auth
+```
+
+  </TabItem>
+</Tabs>
+
+## Basic Usage
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "generators": ["@basketry/typescript", "@basketry/typescript-auth"],
+  "output": "src"
+}
+```

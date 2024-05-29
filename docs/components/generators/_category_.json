@@ -1,0 +1,9 @@
+{
+  "label": "Generators",
+  "position": 3,
+  "link": {
+    "slug": "/components/generators",
+    "type": "generated-index",
+    "description": "Included generators"
+  }
+}

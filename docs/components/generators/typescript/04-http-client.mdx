@@ -1,0 +1,49 @@
+---
+slug: /components/@basketry/typescript-http-client
+title: HTTP Client
+sidebar_position: 4
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## Install
+
+<Tabs groupId="package-manager">
+  <TabItem value="npm" label="npm" default>
+
+```sh
+npm install @basketry/typescript-http-client
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn add @basketry/typescript-http-client
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```sh
+pnpm add @basketry/typescript-http-client
+```
+
+  </TabItem>
+</Tabs>
+
+## Basic Usage
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "generators": [
+    "@basketry/typescript",
+    "@basketry/typescript-validators",
+    "@basketry/typescript-http-client"
+  ],
+  "output": "src"
+}
+```

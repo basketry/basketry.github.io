@@ -1,0 +1,44 @@
+---
+slug: /components/@basketry/swagger-2
+title: Swagger 2
+description: Parse Swagger 2 documents (JSON or YAML)
+sidebar_position: 2
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## Install
+
+<Tabs groupId="package-manager">
+  <TabItem value="npm" label="npm" default>
+
+```sh
+npm install @basketry/swagger-2
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn add @basketry/swagger-2
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```sh
+pnpm add @basketry/swagger-2
+```
+
+  </TabItem>
+</Tabs>
+
+## Basic Usage
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/swagger-2"
+}
+```

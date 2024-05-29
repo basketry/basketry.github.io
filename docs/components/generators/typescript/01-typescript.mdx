@@ -1,0 +1,149 @@
+---
+slug: /components/@basketry/typescript
+title: Types and Interfaces
+description: Generates object types and service interfaces
+sidebar_position: 1
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+## Install
+
+<Tabs groupId="package-manager">
+  <TabItem value="npm" label="npm" default>
+
+```sh
+npm install @basketry/typescript
+```
+
+  </TabItem>
+  <TabItem value="yarn" label="yarn">
+
+```sh
+yarn add @basketry/typescript
+```
+
+  </TabItem>
+  <TabItem value="pnpm" label="pnpm">
+
+```sh
+pnpm add @basketry/typescript
+```
+
+  </TabItem>
+</Tabs>
+
+## Basic Usage
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "generators": ["@basketry/typescript"],
+  "output": "src"
+}
+```
+
+## File Structure
+
+This generator will create a `types.ts` file that contains all the types and interfaces for the API. By default, the file will be nested within a directory named after the API major version. This behavior can be disabled by using the `includeVersion` option described below.
+
+```
+my-project/
+├── node_modules/
+├── src/
+│   ├── v1/               <-- generated
+│   │   └── types.ts      <-- generated
+│   ├── index.ts
+├── .gitignore
+├── basketry.config.json
+├── package.json
+├── petstore.json
+└── README.md
+```
+
+## Options
+
+The `@basketry/typescript` generator accepts the following options to customize the generated code:
+
+### eslintDisable
+
+This option configures an array of ESLint rules to disable in the generated code.
+
+Use this option if a generator produces code that violates a rule you have configured in your ESLint configuration.
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "generators": ["@basketry/typescript"],
+  "output": "src",
+  "options": {
+    "typescript": {
+      "eslintDisable": [
+        "@typescript-eslint/no-explicit-any",
+        "@typescript-eslint/no-unused-vars"
+      ]
+    }
+  }
+}
+```
+
+This option as configured will emit the following code at the top of the generated file:
+
+```typescript title="src/v1/types.ts"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+```
+
+### includeVersion
+
+A boolean value that determines whether to nest the generated files in a directory named after the API major version.
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "generators": ["@basketry/typescript"],
+  "output": "src",
+  "options": {
+    "typescript": {
+      "includeVersion": false
+    }
+  }
+}
+```
+
+This option as configured will emit the following file structure:
+
+```
+my-project/
+├── node_modules/
+├── src/
+│   ├── types.ts          <-- generated
+│   ├── index.ts
+├── .gitignore
+├── basketry.config.json
+├── package.json
+├── petstore.json
+└── README.md
+```
+
+### prettierConfig
+
+This option provides a path to a Prettier configuration file. This generator formats all generated code with prettier. If a `prettierConfig` option is provided, the generator will use that configuration file. If no `prettierConfig` option is provided, the generator will locate a Prettier configuration file per the [Prettier configuration file resolution](https://prettier.io/docs/en/configuration.html) rules.
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "generators": ["@basketry/typescript"],
+  "output": "src",
+  "options": {
+    "typescript": {
+      "prettierConfig": "alternate.prettier.config.js"
+    }
+  }
+}
+```
