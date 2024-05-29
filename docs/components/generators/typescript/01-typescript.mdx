@@ -67,7 +67,7 @@ my-project/
 
 The `@basketry/typescript` generator accepts the following options to customize the generated code:
 
-### eslintDisable
+### `eslintDisable`
 
 This option configures an array of ESLint rules to disable in the generated code.
 
@@ -97,7 +97,7 @@ This option as configured will emit the following code at the top of the generat
 /* eslint-disable @typescript-eslint/no-unused-vars */
 ```
 
-### includeVersion
+### `includeVersion`
 
 A boolean value that determines whether to nest the generated files in a directory named after the API major version.
 
@@ -130,7 +130,7 @@ my-project/
 └── README.md
 ```
 
-### prettierConfig
+### `prettierConfig`
 
 This option provides a path to a Prettier configuration file. This generator formats all generated code with prettier. If a `prettierConfig` option is provided, the generator will use that configuration file. If no `prettierConfig` option is provided, the generator will locate a Prettier configuration file per the [Prettier configuration file resolution](https://prettier.io/docs/en/configuration.html) rules.
 
