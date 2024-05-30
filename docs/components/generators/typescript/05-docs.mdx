@@ -1,6 +1,7 @@
 ---
 slug: /components/@basketry/typescript-docs
 title: Docs
+description: Generates markdown documentation
 sidebar_position: 5
 ---
 
@@ -43,3 +44,32 @@ pnpm add @basketry/typescript-docs
   "output": "src"
 }
 ```
+
+## File Structure
+
+This generator will create an markdown file for each service defined by the source schema. Each file will contain a description of the service, its methods, their parameters, and all responses. All types referenced by the service will be included in the documentation. Some common types may be duplicated across multiple documentation files if they are used by multiple services.
+
+```
+my-project/
+├── node_modules/
+├── src/
+│   ├── v1/                  <-- generated
+│   │   └── pet-service.md   <-- generated
+│   │   └── types.ts
+│   ├── index.ts
+├── .gitignore
+├── basketry.config.json
+├── package.json
+├── petstore.json
+└── README.md
+```
+
+## Options
+
+This generator depends on the `@basketry/typescript` generator and all of their applied options will also apply to files emitted by this generator.
+
+See:
+
+- `@basketry/typescript` [options](/docs/components/@basketry/typescript#options)
+
+The `@basketry/typescript-docs` generator does not accept any of its own options.
