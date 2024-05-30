@@ -2,6 +2,7 @@
 sidebar_position: 3
 ---
 
+import { Install } from "@site/src/components/package-manager";
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
@@ -45,33 +46,11 @@ Update the `source` property in your `basketry.config.json` file to point to the
 }
 ```
 
-## Install a parser:
+## Install a parser
 
 By default, Basketry doesn't know about OpenAPI v3—Basketry needs a parser to convert the source file into a format usable by the rest of the pipeline. Install the `@basketry/openapi-3` package to parse OpenAPI 3.0 documents:
 
-<Tabs groupId="package-manager">
-  <TabItem value="npm" label="npm" default>
-
-```sh
-npm install @basketry/openapi-3
-```
-
-  </TabItem>
-  <TabItem value="yarn" label="yarn">
-
-```sh
-yarn add @basketry/openapi-3
-```
-
-  </TabItem>
-  <TabItem value="pnpm" label="pnpm">
-
-```sh
-pnpm add @basketry/openapi-3
-```
-
-  </TabItem>
-</Tabs>
+<Install package="@basketry/openapi-3" />
 
 ## Update the `parser` property
 
