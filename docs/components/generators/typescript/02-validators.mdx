@@ -111,3 +111,134 @@ This option as configured will now emit the following code at the top of the gen
 ```typescript title="src/v1/validators.ts"
 import * as types from "@petstore/sdk/lib/types";
 ```
+
+## Examples
+
+### Validator Functions
+
+A validation method is generated for each type, enum, an union defined by the source schema. These methods will return an array of `ValidationError` objects if the input object does not match the schema. The `ValidationError` object contains the `path` to the property that failed validation and a `message` describing the error.
+
+:::info
+
+Validation methods do not throw errors or otherwise interupt program flow. They will only return an array of `ValidationError` objects. It is up to the caller to determine how to handle these errors.
+
+:::
+
+```typescript title="src/index.ts"
+import { type Pet } from "./v1/types";
+import { validatePet, type ValidationError } from "./v1/validators";
+
+app.post("/pet", (req, res) => {
+  const pet = req.body;
+
+  // Validate the input data
+  const errors: ValidationError[] = validatePet(pet);
+
+  if (errors.length) {
+    console.error("Validation failed:", errors);
+    res.status(400).send({ errors });
+    return;
+  } else {
+    console.log("Validation passed!");
+    // TODO: Handle valid data
+  }
+});
+```
+
+### Sanitizer Functions
+
+Sanitizer functions create a deep clone of the input object removing any properties from an input object that are `undefined` or are not defined by the source schema. This can be useful when accepting data from an external source and you want to ensure that only known properties are handled by the API.
+
+:::info
+
+Sanitiser functions do not validate input data. Invalid properties will be copied as is to the output object. It is up to the caller to validate the input data in addition to calling the sanitiser.
+
+:::
+
+```typescript title="src/index.ts"
+import { type Pet } from "./v1/types";
+import { validatePet, type ValidationError } from "./v1/validators";
+
+app.post("/pet", (req, res) => {
+  const pet = req.body;
+
+  // Remove all properties not defined by the API schema
+  const sanitizedPet = sanitizePet(pet);
+
+  // TODO: Handle data
+});
+```
+
+### Validator Class Wrappers
+
+A convience class is generated for each of the service interfaces defined by the source schema. These classes implement the service interface and wrap another instance of the service providing both validation and sanitization.
+
+Each validator class accepts an instance of the service interface in its constructor. For each of the different reponse types defined by the service, the class will also accept a function converts `ValidationErrors` and any caught exceptions into that resonse type.
+
+:::tip
+
+Note that validator classes are best used in conjunction with services the return response envelopes. The `@basketry/rules` packages provides a rule to ensure that your source schema only defines methods that return response envelopes.
+
+:::
+
+```typescript title="src/index.ts"
+import { type PetResponse, type PetService } from "./v1/types";
+import { type ResponseBuilder, ValidatedPetService } from "./v1/validators";
+import { MyPetService } from "./my-pet-service";
+
+// Create an instance of the concret service implementation
+const petService = new MyPetService();
+
+// This function instructs the validator class in what do with validation errors
+const buildPetResponse: ResponseBuilder<PetResponse> = (
+  validationErrors: ValidationError[],
+  caughtError: any
+) => {
+  // TODO: Construct and return a `PetResponse` object based on the errors
+};
+
+// Wrap our service with the validator class
+// Note that both our service instance and the validator class share the same `PetService` interface
+const validatedPetService: PetService = new ValidatedPetService(petService, {
+  buildPetResponse,
+});
+
+// Now we can call the service methods. All boilerplate validation and sanitization is handled for us.
+const petResponse = await validatedPetService.createPet({ name: "Fido" });
+```
+
+Internally, the `ValidatedPetService` is implemented something like this:
+
+```typescript title="src/v1/validators.ts"
+import * as types from "./types";
+import * as sanitizers from "./sanitizers";
+
+export class ValidatedPetService implements types.PetService {
+  constructor(
+    private readonly service: types.PetService,
+    private readonly handlers: {
+      buildPetResponse: ResponseBuilder<types.PetResponse>;
+    }
+  ) {}
+
+  async createPet(params: types.CreatePetParams) {
+    let validationErrors: ValidationError[] = [];
+    try {
+      validationErrors = validateCreatePetParams(params);
+      if (validationErrors.length) {
+        return sanitizers.sanitizeCreatePetResponse(
+          this.handlers.buildPetResponse(validationErrors, undefined)
+        );
+      }
+      const sanitizedParams = sanitizers.sanitizeCreatePetParams(params);
+      return sanitizers.sanitizeCreatePetResponse(
+        await this.service.CreatePet(sanitizedParams)
+      );
+    } catch (err) {
+      return sanitizers.sanitizeCreatePetResponse(
+        this.handlers.buildPetResponse(validationErrors, err)
+      );
+    }
+  }
+}
+```
