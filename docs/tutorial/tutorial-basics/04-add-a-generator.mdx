@@ -2,8 +2,7 @@
 sidebar_position: 4
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
+import { Install } from "@site/src/components/package-manager";
 
 # Add a Generator
 
@@ -11,29 +10,7 @@ import TabItem from "@theme/TabItem";
 
 We want to generate TypeScript types and interfaces that represent our source service definition. We'll continue by installing the `@basketry/typescript` generator:
 
-<Tabs groupId="package-manager">
-  <TabItem value="npm" label="npm" default>
-
-```sh
-npm install @basketry/typescript
-```
-
-  </TabItem>
-  <TabItem value="yarn" label="yarn">
-
-```sh
-yarn add @basketry/typescript
-```
-
-  </TabItem>
-  <TabItem value="pnpm" label="pnpm">
-
-```sh
-pnpm add @basketry/typescript
-```
-
-  </TabItem>
-</Tabs>
+<Install package="@basketry/typescript" />
 
 ## Update the configuration
 

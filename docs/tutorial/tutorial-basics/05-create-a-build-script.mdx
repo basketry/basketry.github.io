@@ -2,8 +2,7 @@
 sidebar_position: 5
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
+import { Run } from "@site/src/components/package-manager";
 
 # Create a Build Script
 
@@ -26,29 +25,7 @@ Add a `basketry` script to your `package.json` file that runs the Basketry CLI:
 
 Now you can run the `basketry` script to generate code from your service definition:
 
-<Tabs groupId="package-manager">
-  <TabItem value="npm" label="npm" default>
-
-```sh
-npm run basketry
-```
-
-  </TabItem>
-  <TabItem value="yarn" label="yarn">
-
-```sh
-yarn basketry
-```
-
-  </TabItem>
-  <TabItem value="pnpm" label="pnpm">
-
-```sh
-pnpm run basketry
-```
-
-  </TabItem>
-</Tabs>
+<Run script="basketry" />
 
 Your `src` directory (the `output` specified in `basketry.config.json`) should now contain TypeScript files that represent your OpenAPI service definition. You can now use these files in your project!
 

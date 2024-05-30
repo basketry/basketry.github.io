@@ -1,0 +1,49 @@
+---
+sidebar_position: 6
+---
+
+import { Exec, Install, Run } from "@site/src/components/package-manager";
+
+# Enforce Rules
+
+Use rules to create consistency in your service design.
+
+## Rules
+
+You can use rules to enforce naming conventions, check for required fields, and more. Basketry comes with a set of built-in rules, or you can create your own custom ones.
+
+Let's start by installing the `@basketry/rules` package:
+
+<Install pacakge="@basketry/rules" />
+
+## Update the configuration
+
+Update the `rules` array in your `basketry.config.json` file to include a few of the standard rules provided by the `@basketry/rules` package:
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "rules": [
+    "@basketry/rules/lib/description",
+    "@basketry/rules/lib/http-status",
+    "@basketry/rules/lib/string-id"
+  ],
+  "generators": ["@basketry/typescript"],
+  "output": "src",
+  "options": {
+    "basketry": {}
+  }
+}
+```
+
+<Run script="basketry" />
+
+The console output will show if any rules failed while parsing `petstore.json`. You can use this information to update your service definition to meet the rules you've set for your API. In the future, if you add or change the rules that govern your service definition, you can easily run the `basketry` script again to check for compliance.
+
+:::tip
+
+You can use the Basketry `validate` command to only evaluate the configured rules without generating any code. This is useful for Continuous Integration (CI) pipelines to ensure that your service definition is compliant prior to merging changes.
+
+<Exec command="basketry validate" />
+:::
