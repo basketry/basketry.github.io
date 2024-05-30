@@ -204,3 +204,39 @@ This option as configured will now emit the following code at the top of the gen
 ```typescript title="src/v1/http-client.ts"
 import * as types from "@petstore/sdk/lib/types";
 ```
+
+## Examples
+
+You can use the following examples to see how to use the generated HTTP Client. In both the browser and Node environments, you can pass any method that implements the `fetch` interface to the service class. You can use the native `fetch` method, a wrapped version of `fetch`, or a custom library of your choosing.
+
+### Browser
+
+```typescript title="src/index.ts"
+import { HttpPetService, PetService } from "./v1/http-client";
+
+const petService: PetService = new HttpPetService(window.fetch.bind(window), {
+  root: "https://api.example.com/v1",
+});
+
+export default petService;
+```
+
+:::warning
+
+Note that if you pass `window.fetch` to a service class, you need to rebind the `fetch` method to the `window` object.
+
+If you don't, the `fetch` method will fail to execute in the browser environment. No request will be sent, and the console will display the error "TypeError: Failed to execute 'fetch' on 'Window': Illegal invocation".
+
+:::
+
+### Node
+
+```typescript title="src/index.ts"
+import { HttpPetService, PetService } from "./v1/http-client";
+
+const petService: PetService = new PetService(fetch, {
+  root: "https://api.example.com/v1",
+});
+
+export default petService;
+```
