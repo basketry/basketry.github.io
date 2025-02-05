@@ -1,0 +1,59 @@
+---
+slug: /components/@basketry/zod
+title: Zod
+description: Generates zod schemas
+sidebar_position: 7
+---
+
+import { Install } from "@site/src/components/package-manager";
+
+## Install
+
+<Install package="@basketry/zod" />
+
+## Basic Usage
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "generators": ["@basketry/zod"],
+  "output": "src"
+}
+```
+
+## File Structure
+
+This generator will create [Zod](https://zod.dev/) schemas for all the API schemas defined in the source file.
+
+By default, the file will be nested within a directory named after the API major version. This behavior can be disabled by using the `includeVersion` option from the [Typescript Generator](/docs/components/@basketry/typescript#includeversion).
+
+```
+my-project/
+├── node_modules/
+├── src/
+│   ├── v1/                  <-- generated
+│   │   └── schemas.ts       <-- generated
+│   ├── index.ts
+├── .gitignore
+├── basketry.config.json
+├── package.json
+├── petstore.json
+└── README.md
+```
+
+## Options
+
+This generator depends on the `@basketry/typescript` generator and all of their applied options will also apply to files emitted by this generator.
+
+See:
+
+- `@basketry/typescript` [options](/docs/components/@basketry/typescript#options)
+
+The `@basketry/zod` generator does not accept any of its own options.
+
+## Dependencies
+
+The generated file contains code that depends on the `zod` package that is not included by default. You will need to install it separately.
+
+<Install package="zod" />
