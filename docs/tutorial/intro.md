@@ -14,13 +14,13 @@ If you haven't yet, go ahead and read [Introducing Basketry](../../blog/introduc
 
 We'll talk about installing packages and creating and running scripts. This guide assumes that you already have a working knowledge of NPM or Yarn and know how to use your preferred package manager to perform those actions.
 
-Lastly, we will be building our service in Typescript. This guide assumes that you are either familiar with setting up a new project or have access to an existing project. If you want to use the Typescript project scaffolding tool that I personally use for new projects, check out my [Yeoman generator](https://www.npmjs.com/package/generator-ts-console).
+Lastly, we will be building our service in Typescript. This guide assumes that you are either familiar with setting up a new project or have access to an existing project.
 
 ## Initial Setup
 
 ### Get a Service Definition
 
-Let's start by downloading an existing Service Definition. Swagger.io offers an example Swagger doc defining an example pet store service: https://petstore.swagger.io/v2/swagger.json. Download that file as swagger.jsonand put it in the root folder of your project.
+Let's start by downloading an existing Service Definition. Swagger.io offers an example Swagger doc defining an example pet store service: https://petstore3.swagger.io/api/v3/openapi.json. Download that file as swagger.jsonand put it in the root folder of your project.
 
 ### Install packages
 

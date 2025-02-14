@@ -1,5 +1,6 @@
 ---
 sidebar_position: 99
+description: You have just learned the basics of Basketry!
 ---
 
 # Congratulations!

@@ -1,5 +1,6 @@
 ---
 sidebar_position: 1
+description: NodeJS, package managers, and Typescript
 ---
 
 # Prerequisites
@@ -20,6 +21,6 @@ In this guide, we'll talk about installing NPM packages and creating and running
 
 ## Typescript
 
-Lastly, this guide will demonstrate building a service in Typescript. We assumes that you are either familiar with setting up a new project or have access to an existing project.
+Lastly, this guide will demonstrate building a service in Typescript. We assumes that you are either familiar with setting up a new project with Typescript installed or have access to an existing project with it ready to go.
 
-Visit https://www.typescriptlang.org/download/ for the official docs on setting up Typescript in your project. If you want to use the Typescript project scaffolding tool that were used to create the example projects, use the [generator-ts-console](https://www.npmjs.com/package/generator-ts-console) Yeoman generator.
+Visit https://www.typescriptlang.org/download/ for the official docs on setting up Typescript in your project.
