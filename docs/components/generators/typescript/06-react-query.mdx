@@ -1,0 +1,68 @@
+---
+slug: /components/@basketry/react-query
+title: React Query
+description: Generates React Query hooks
+sidebar_position: 6
+---
+
+import { Install } from "@site/src/components/package-manager";
+
+## Install
+
+:::info
+
+This generator is a prerelease and may have breaking changes in future versions.
+
+:::
+
+<Install package="@basketry/react-query@alpha" />
+
+## Basic Usage
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "generators": ["@basketry/react-query"],
+  "output": "src"
+}
+```
+
+## File Structure
+
+This generator will create [React Query](https://tanstack.com/query/latest/docs/framework/react/overview) schemas for all the API schemas defined in the source file.
+
+By default, the file will be nested within a directory named after the API major version. This behavior can be disabled by using the `includeVersion` option from the [Typescript Generator](/docs/components/@basketry/typescript#includeversion).
+
+```
+my-project/
+├── node_modules/
+├── src/
+│   ├── v1/                  <-- generated
+│   │   └── hooks            <-- generated
+│   │       ├── pets.tsx     <-- generated
+│   │       ├── store.tsx    <-- generated
+│   │       └── users.tsx    <-- generated
+│   └── index.ts
+├── .gitignore
+├── basketry.config.json
+├── package.json
+├── petstore.json
+└── README.md
+```
+
+## Options
+
+This generator depends on the `@basketry/typescript` generator and all of their applied options will also apply to files emitted by this generator.
+
+See:
+
+- `@basketry/typescript` [options](/docs/components/@basketry/typescript#options)
+
+The `@basketry/react-query` generator does not accept any of its own options.
+
+## Dependencies
+
+The generated file contains code that depends on the `@tanstack/react-query` package that is not included by default. You will need to install it separately.
+
+<Install package="@tanstack/react-query" />
