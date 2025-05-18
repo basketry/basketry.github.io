@@ -90,6 +90,16 @@ const config: Config = {
         },
         { to: "/blog", label: "Blog", position: "left" },
         {
+          href: "https://github.com/sponsors/basketry",
+          label: "❤️ Sponsor",
+          position: "right",
+        },
+        {
+          href: "https://discord.gg/8KTfVf55F7",
+          label: "Discord",
+          position: "right",
+        },
+        {
           href: "https://github.com/basketry",
           label: "GitHub",
           position: "right",
@@ -116,13 +126,13 @@ const config: Config = {
           title: "Community",
           items: [
             {
+              label: "Discord",
+              href: "https://discord.gg/8KTfVf55F7",
+            },
+            {
               label: "Stack Overflow",
               href: "https://stackoverflow.com/questions/tagged/basketry",
             },
-            // {
-            //   label: "Discord",
-            //   href: "https://discordapp.com/invite/docusaurus",
-            // },
             // {
             //   label: "Twitter",
             //   href: "https://twitter.com/docusaurus",
