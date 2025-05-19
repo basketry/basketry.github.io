@@ -1,0 +1,133 @@
+---
+slug: unified-dtos
+title: Unified DTOs for Clients and Servers
+description: Learn how to improve your code quality and type safety with discriminated unions, and use Basketry to streamline the process.
+authors: skonves
+tags: [updates, how-to]
+image: ./img/liam-briese-sQARTh3D7pk-unsplash.jpg
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import { Exec, Install } from "@site/src/components/package-manager";
+
+# Unified DTOs for Clients and Servers
+
+Basketry recently improved how Data Transfer Objects (DTOs) are handled across both Express and HTTP client generators. This upgrade simplifies your project by centralizing DTO definitions and enhancing data validation through Zod.
+
+This article will walk you through what changed and how to leverage these improvements in your projects.
+
+![Dimly lit equipment rack filled with tangled cables and small red-and-green indicator lights.](./img/liam-briese-sQARTh3D7pk-unsplash.jpg)
+
+{/* truncate */}
+
+## Why the change?
+
+Previously, DTO generation was embedded directly in the Express generator, causing inconsistencies between client and server implementations. Additionally, the HTTP client generator lacked formal DTOs or mappers, resulting in bugs for certain clients. That generation has now been decomposed into a new dedicated package, `@basketry/typescript-dtos`, and referenced in both client and server generators, ensuring consistent DTO definitions across your application.
+
+This update also improves handling of property casing between DTOs and internal types, significantly reducing integration issues. Moreover, the HTTP client generator now leverages Zod for validation, replacing the deprecated validators previously used. Zod provides powerful, widely-adopted validation that can be used directly in client libraries, ensuring your frontend applications maintain robust data integrity and prevents the need to hand-write validation logic.
+
+By adopting these improvements, your Basketry projects benefit from more consistent implementations, reduced debugging time, and easier maintainability.
+
+## Upgrading Your Project
+
+### Upgrade dependencies
+
+To upgrade, first install the necessary dependencies:
+
+<Tabs groupId="client-vs-server" defaultValue="server">
+  <TabItem value="server" label="Server">
+    <Install package="@basketry/typescript-dtos @basketry/express@latest" />
+  </TabItem>
+  <TabItem value="client" label="Client">
+    <Install package="@basketry/typescript-dtos @basketry/typescript-http-client@latest" />
+  </TabItem>
+</Tabs>
+
+### Update your configuration
+
+Next, update your Basketry configuration. Previously, your configuration looked like this:
+
+<Tabs groupId="client-vs-server" defaultValue="server">
+  <TabItem value="server" label="Server">
+
+```json title="basketry.config.json"
+{
+  "generators": ["@basketry/express", "@basketry/typescript", "@basketry/zod"],
+  "options": {
+    "express": { "validation": "zod" }
+  }
+}
+```
+
+  </TabItem>
+  <TabItem value="client" label="Client">
+
+```json title="basketry.config.json"
+{
+  "generators": [
+    "@basketry/typescript",
+    "@basketry/typescript-http-client",
+    "@basketry/zod"
+  ],
+  "options": {
+    "httpClient": { "validation": "zod" }
+  }
+}
+```
+
+  </TabItem>
+</Tabs>
+
+Your updated configuration should now include the @basketry/typescript-dtos generator and specify the DTO role:
+
+<Tabs groupId="client-vs-server" defaultValue="server">
+  <TabItem value="server" label="Server">
+
+```json title="basketry.config.json"
+{
+  "generators": [
+    "@basketry/express",
+    "@basketry/typescript",
+    "@basketry/typescript-dtos",
+    "@basketry/zod"
+  ],
+  "options": {
+    "dtos": { "role": "server" },
+    "express": { "validation": "zod" }
+  }
+}
+```
+
+  </TabItem>
+  <TabItem value="client" label="Client">
+
+```json title="basketry.config.json"
+{
+  "generators": [
+    "@basketry/typescript",
+    "@basketry/typescript-dtos",
+    "@basketry/typescript-http-client",
+    "@basketry/zod"
+  ],
+  "options": {
+    "dtos": { "role": "client" },
+    "httpClient": { "validation": "zod" }
+  }
+}
+```
+
+  </TabItem>
+</Tabs>
+
+### Regenerate your code
+
+Finally, regenerate your Basketry code. This will create the new DTOs and update your generated client and/or server code to use them:
+
+<Exec command="basketry" />
+
+This upgrade provides immediate benefits, ensuring consistent client-server interactions, reducing bugs, and stabilizing client implementations. Enhance your project's reliability and maintainability by adopting these improvements today.
+
+---
+
+This article was hastily written by a human. Editing and proofreading were performed with the assistance of one or more large language models.
