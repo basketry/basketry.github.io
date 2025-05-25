@@ -53,7 +53,12 @@ Next, update your Basketry configuration. Previously, your configuration looked 
 
 ```json title="basketry.config.json"
 {
-  "generators": ["@basketry/express", "@basketry/typescript", "@basketry/zod"],
+  "generators": [
+    "@basketry/express",
+    "@basketry/typescript",
+    "@basketry/typescript-dtos",
+    "@basketry/zod"
+  ],
   "options": {
     "express": { "validation": "zod" }
   }
@@ -67,6 +72,7 @@ Next, update your Basketry configuration. Previously, your configuration looked 
 {
   "generators": [
     "@basketry/typescript",
+    "@basketry/typescript-dtos",
     "@basketry/typescript-http-client",
     "@basketry/zod"
   ],
