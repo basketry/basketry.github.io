@@ -88,6 +88,7 @@ const config: Config = {
           position: "left",
           label: "Components",
         },
+        { to: "/roadmap", label: "Roadmap", position: "left" },
         { to: "/blog", label: "Blog", position: "left" },
         {
           href: "https://github.com/sponsors/basketry",
