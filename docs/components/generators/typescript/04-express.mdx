@@ -133,6 +133,45 @@ The `@basketry/express` generator accepts the following additional options to cu
   </TabItem>
 </Tabs>
 
+### `responseValidation`
+
+- Type: `"none" | "warn" | "strict"` - The response validation strategy to use.
+
+  - `none`: Disables response validation.
+  - `warn` _(default)_: Logs warnings for invalid responses but does not block execution.
+  - `strict`: Enforces strict validation, throwing errors for invalid responses.
+
+<Tabs groupId="@basketry/express options.validation">
+  <TabItem value="zod" label="zod" default>
+    <CodeBlock language="json" title="basketry.config.json">{`{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "generators": ["@basketry/typescript", "@basketry/express", "@basketry/zod"],
+  "output": "src",
+  "options": {
+    "express": {
+      "validation": "zod",
+      "responseValidation": "strict"
+    }
+  }
+}`}</CodeBlock>
+  </TabItem>
+  <TabItem value="native" label="native">
+    <CodeBlock language="json" title="basketry.config.json">{`{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "generators": ["@basketry/typescript", "@basketry/express", "@basketry/typescript-validation"],
+  "output": "src",
+  "options": {
+    "express": {
+      "validation": "native",
+      "responseValidation": "strict"
+    }
+  }
+}`}</CodeBlock>
+  </TabItem>
+</Tabs>
+
 ### `schemasImportPath`
 
 - Type: `string` - The location of the Zod schemas module. (This option is only applicable when `validation` is set to `"zod"`.)
