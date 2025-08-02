@@ -1,0 +1,236 @@
+---
+slug: basketry-0.2-rc
+title: Preparing for Basketry 0.2 Release Candidate
+description: Learn about the upcoming Basketry 0.2 release candidate and how to prepare your projects for the upgrade.
+authors: skonves
+tags: [updates, how-to]
+image: ./img/muhammad-ramdan-hwoIWT2mtvY-unsplash.jpg
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import Link from "@docusaurus/Link";
+import { Exec, Install } from "@site/src/components/package-manager";
+
+# Preparing for Basketry 0.2 Release Candidate
+
+Basketry 0.2 is now available as a Release Candidate, marking a major evolution in how Basketry defines and works with its Intermediate Representation (IR). This release formalizes the IR in JSON Schema, providing a machine-readable contract that enables consistent tooling across languages and environments. By taking a schema-first approach, Basketry can now use its own pipelines to generate TypeScript definitions, documentation, and language-agnostic representations directly from the IR specification—an important step toward a truly polyglot ecosystem.
+
+![Dimly lit equipment rack filled with tangled cables and small red-and-green indicator lights.](./img/muhammad-ramdan-hwoIWT2mtvY-unsplash.jpg)
+
+{/* truncate */}
+
+For most users, moving to 0.2 requires only a single configuration change. For plugin authors and other advanced users, this release introduces breaking changes in the IR, updated conventions, and new capabilities that may require updates to your components.
+
+If you maintain Basketry plugins—open-source or proprietary—now is the time to upgrade to the Release Candidate, test your changes, and report any issues before 0.2 becomes the latest release. While 0.1.x components will continue to work indefinitely, they will no longer receive new features or fixes once 0.2 is promoted to latest.
+
+## For Typical Users
+
+If you use Basketry by creating a configuration file and installing generators or rules from npm, the move to 0.2 will be simple: update your configuration so that source and output paths are relative to the config file itself, rather than to the directory where you run `npx basketry`.
+
+### What to change
+
+Before (0.1.x) — paths are relative to the current working directory:
+
+```json title="./src/some-project/basketry.config.json"
+{
+  "source": "./src/some-project/domain.oas3.json",
+  "output": "./src/some-project/generated"
+  ... other config ...
+}
+```
+
+Running this from the project root works as expected, but running it from a subdirectory (or with the config in a different location) changes how paths are resolved.
+
+After (0.2.x) — paths are relative to the config file:
+
+```json title="./src/some-project/basketry.config.json"
+{
+  "source": "domain.oas3.json",
+  "output": "generated"
+  ... other config ...
+}
+```
+
+Now, regardless of where you run the CLI from, Basketry will resolve paths based on the location of `basketry.config.json`.
+
+### Why This Matters
+
+Previously, the output of `npx basketry` could vary depending on your current working directory:
+
+- Before: Running from `~/` vs `~/src/some-project` might produce different results or fail to find the spec file.
+
+- After: You can run `npx basketry --config path/to/basketry.config.json` from anywhere—whether in your project root, a scripts folder, or even a completely different working directory—and the output will be consistent and deterministic.
+
+In short: update your paths to be relative to the config file, and you’re good to go.
+
+## For Plugin Authors
+
+This section is for maintainers of Basketry components—such as generators, rules, and other plugins—whether open-source or proprietary. If your work consumes Basketry’s Intermediate Representation (IR) or produces output based on it, the 0.2 release will likely require changes to your code.
+
+The IR in 0.2 has been redefined and formalized in JSON Schema, providing a precise, machine-readable contract for every node in the model. While this unlocks new capabilities and consistency across languages, it also introduces structural and naming changes that will break existing code written against the 0.1.x IR.
+
+Updating your components during the Release Candidate period ensures they will be compatible when 0.2 becomes the latest release. The changes described below are intended as a practical reference to guide you through the migration.
+
+### Member Values
+
+- Member value type information is now a `value` property that is a `MemberValue` node.
+- `isOptional` and `isNullable` are directly defined on `MemberValue` (the `required` rule is deprecated).
+- `isPrimitive` is deprecated in favor of `value.kind`.
+
+Previously, properties, parameters, and return values had an "is a" relationship with a value type. This has been replaced with a "has a" relationship, where the value type is a member of the parent node. Information about property names, descriptions, etc can still be found directly on the parent node. Information about the value type is now found on a new `value` property that is a `MemberValue` node.
+
+```ts
+// Before
+const typeName = property.typeName;
+
+// After
+const typeName = property.value.typeName;
+```
+
+Previously, a member was determined to be required if it had a `required` rule. Now, a member is required by default and is only optional if it has an `isOptional` value set. Addtiionally, member values how support `isNullable` without needing to explicitly define a union with `null`.
+
+```ts
+// Before
+if (property.rules.some((r) => r.id === "required")) {
+  /* ... */
+}
+
+// After
+if (!property.value.isOptional) {
+  /* ... */
+}
+```
+
+Previously, member values types were descriminated by the `isPrimitive` value. Now, they are discriminated on the `kind` property of a `MemberValue` node.
+
+```ts
+// Before
+if (member.isPrimitive) {
+  /* ... */
+}
+
+// After
+if (member.value.kind === "PrimitiveValue" /* or 'ComplexValue' */) {
+  /* ... */
+}
+```
+
+### Rules
+
+- The following rules have been removed: `required`, `constant`, and `string-enum`
+- Rule casing has changed to PascalCase from kebab-case. (eg. `StringMaxLength` instead of `string-max-length`)
+
+To determine of a member is required, check the `isOptional` property of the `MemberValue` node (see above).
+
+Constant values are defined on the `MemberValue` node in the `constant` property. This value was added in a previous version of the IR. How that the `constant` rules is being removed, the `constant` property is now the single source of truth for constant values.
+
+```ts
+// Before
+const constant = member.rules.find((r) => r.id === "constant")?.value;
+
+// After
+const constant = member.value.constant?.value;
+```
+
+All enums are defined in at the top level of the IR in the `enums` collection and are referenced in a `ComplexValue` member value with the `typeName` property set to the enum name.
+
+```ts
+// Example
+if (member.value.kind === "ComplexValue") {
+  const typeName = member.value.typeName;
+  const e = service.enums.find((e) => e.name.value === typeName.value);
+}
+```
+
+### Unions
+
+- The collection of unions on the IR is now poplulated by `SimpleUnion` and `DiscriminatedUnion` nodes.
+- A `disjunctionKind` is added to `SimpleUnion` that differentiates between `anyOf` and `oneOf` semantics.
+
+Previously, all unions where `Union` nodes with an optional `discriminator` property. Now, there are two types of unions discriminated by `kind`: `SimpleUnion` and `DiscriminatedUnion`.
+
+```ts
+// Before
+const isDiscriminated = !!union.discriminator;
+
+// After
+const isDiscriminated = union.kind === "DiscriminatedUnion";
+```
+
+In 0.2, simple unions include a new `disjunctionKind` property, which indicates whether the union is `inclusive` or `exclusive`. An inclusive disjunction maps to `anyOf` semantics in SDLs like OpenAPI or JSON Schema, meaning a value _may_ satisfy multiple member types at once. An `exclusive` disjunction maps to `oneOf` semantics, meaning a value must match exactly one member type. This property removes the need to infer union semantics from the source SDL and makes intent explicit in the IR. Note that not all languages support a clear distinction between inclusive and exclusive disjunctions in their union semantics, so this property is optional and defaults to `inclusive`.
+
+### Scalars → Literals
+
+- The generic `Scalar<T>` type has been removed from the IR.
+- Instead of a single scalar type, 0.2 defines explicit literal types such as `NumberLiteral`, `StringLiteral`, `NonEmptyStringLiteral`, `NonNegativeIntegerLiteral`, etc.
+
+A "literal" type is a value that maps to a literal expression in the source SDL. This allows tooling to source map back to a specific offset and length in the original source file. Previously, the generic `Scalar<T>` represented all of these values. However, because JSON Schema (how used to to define the IR) does not support literal types, the IR had to be updated to support them. Additionally, this allows for Basketry implementation in lanaguages that themselves do not support generics.
+
+The more precice literal types now also support more precise validation. For example, `NonEmptyStringLiteral` will now validate that the string is not empty, and `NonNegativeIntegerLiteral` will validate that the number is not negative. Each literal type has a `kind` property that indicates the type of literal it is.
+
+### Return Values
+
+- The `ReturnValue` type has been renamed `ReturnValue`
+- `Member.returnType` is now renamed `Member.returns`.
+
+`ReturnType<Type>` is a built-in utility type in TypeScript that extracts the return type of a function type. It is part of TypeScript's standard library and provides a way to infer and reuse the type returned by a function without explicitly defining it again. This type name conflicted with Basketry's `ReturnType` type creating confusion when it was not explicitly imported from `baksetry`. In 0.2, it has been renamed to `ReturnValue` to avoid the conflict.
+
+In conjunction with type name change, `Member.returnType` is now renamed `Member.returns`.
+
+```ts
+// Before
+const returnType = member.returnType; // ReturnType
+
+// After
+const returns = member.returns; // ReturnValue
+```
+
+### Protocols
+
+- The `Interface.protocols` property is now optional
+- Some HTTP protocol types and properties have been renamed: `HttpPath`→`HttpRoute`, `HttpParameter.in`→`HttpParameter.location`, `HttpPath.path`→`HttpRoute.pattern`
+
+These changes bring protocol naming in line with common terminology and improve clarity when mapping IR data to HTTP and other transport layers.
+
+### Kinds
+
+- Nearly every node in the IR now includes a kind property that identifies its exact type.
+- The kind property provides a reliable entry point for implementing visitor-pattern–based rules or generators, reducing the need for manual type checks.
+
+### Source Paths
+
+- The `sourcePath` property is now `sourcePaths`, an array of file references
+- Encoded locations now include an index of the corresponding source path
+
+With `sourcePaths` now supporting multiple file references, Basketry can accurately represent services defined across several source files. Component authors don’t need to manage these files directly—the IR still presents a unified service model—but you now have full visibility into where each node originated. Each node’s `loc` includes an encoded `sourceIndex` that points to the correct entry in `sourcePaths`, making it easy to trace definitions back to their source file for debugging, documentation, or error reporting.
+
+```ts
+// Example
+import { decodeRange } from "basketry";
+
+const { sourceIndex, range } = decodeRange(node.loc);
+const sourcePath = service.sourcePaths[sourceIndex];
+```
+
+## Next Steps
+
+Basketry 0.2 introduces foundational changes to the IR that will enable more consistent tooling, better cross-language support, and greater flexibility for complex service definitions. While 0.1.x components will continue to function, they will no longer receive new features or fixes once 0.2 becomes the latest release.
+
+If you maintain a Basketry plugin, now is the time to:
+
+1. Upgrade to the 0.2 Release Candidate in your development environment.
+2. Update your component code based on the changes outlined in this guide.
+3. Test your components against your existing Basketry pipelines.
+4. Report any issues via [GitHub](https://github.com/basketry) or join the [Basketry Discord](https://discord.gg/8KTfVf55F7) for discussion and support.
+5. Attend weekly office hours (weekends on Discord) if you’d like real-time help or to review migration details.
+
+By preparing now, you’ll ensure your components are ready when 0.2 is promoted to latest and can take full advantage of the new IR capabilities without disruption to your users.
+
+---
+
+Basketry 0.2 is a major step toward a more flexible, language-agnostic ecosystem—but it’s only the beginning. To see where we’re headed next, including features and improvements planned beyond 0.2, check out the <Link to="/roadmap">Basketry roadmap</Link>. Your early feedback and participation will help shape the future of the project.
+
+---
+
+This article was written by a human. Editing and proofreading were performed with the assistance of one or more large language models.

@@ -69,6 +69,12 @@ const config: Config = {
   themeConfig: {
     // Replace with your project's social card
     image: "img/basketry-social-card.png",
+    announcementBar: {
+      id: "basketry_0.2_rc",
+      content:
+        '📣 Basketry 0.2 is now available as a Release Candidate! <a href="/blog/basketry-0.2-rc">Learn more</a> ← 👀',
+      isCloseable: false,
+    },
     navbar: {
       title: "Basketry",
       logo: {
