@@ -5,7 +5,14 @@ description: Parse OpenAPI v3 documents (JSON or YAML)
 sidebar_position: 1
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 import { Install } from "@site/src/components/package-manager";
+import { Contribute } from "@site/src/components/links";
+
+<Contribute repo="openapi-3" />
+
+This parser lets you use OpenAPI 3.x specifications—written in either JSON or YAML—as the source for a Basketry project. Add it to your pipeline to generate code, documentation, or apply rules directly from your OpenAPI definition.
 
 ## Install
 
@@ -19,3 +26,381 @@ import { Install } from "@site/src/components/package-manager";
   "parser": "@basketry/openapi-3"
 }
 ```
+
+## Advanced Usage
+
+### Interface Grouping
+
+In Basketry’s Intermediate Representation (IR), a service is broken into one or more interfaces. Each interface contains the operations (methods) related to a specific area of the API.
+
+When using the OpenAPI v3 parser, operations are assigned to interfaces based on the first path segment by default. For example, an operation with the path `GET /pets/:id` would be placed in the `pets` interface.
+
+You can override this default behavior by adding an OpenAPI tag to the operation. The parser will use the first tag value as the interface name instead of the first path segment.
+
+#### Default grouping (by path)
+
+<Tabs groupId="json-vs-yaml" defaultValue="json">
+  <TabItem value="json" label="JSON">
+
+```json title="petstore.json"
+{
+  "paths": {
+    "/pets/{id}": {
+      "get": {
+        "operationId": "getPetById",
+        "summary": "Get a pet by ID",
+        "responses": {
+          "200": {
+            "description": "Pet details"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+  </TabItem>
+  <TabItem value="yaml" label="YAML">
+
+```yaml title="petstore.yaml"
+paths:
+  /pets/{id}:
+    get:
+      operationId: getPetById
+      summary: Get a pet by ID
+      responses:
+        "200":
+          description: Pet details
+```
+
+  </TabItem>
+</Tabs>
+
+In this example, the `GET /pets/{id}` operation will be placed in the `pets` interface.
+
+#### Overriding grouping with a tag
+
+<Tabs groupId="json-vs-yaml" defaultValue="json">
+  <TabItem value="json" label="JSON">
+
+```json title="petstore.json"
+{
+  "paths": {
+    "/pets/{id}": {
+      "get": {
+        "operationId": "getPetById",
+        "summary": "Get a pet by ID",
+        "tags": ["animals"],
+        "responses": {
+          "200": {
+            "description": "Pet details"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+  </TabItem>
+  <TabItem value="yaml" label="YAML">
+
+```yaml title="petstore.yaml"
+paths:
+  /pets/{id}:
+    get:
+      operationId: getPetById
+      summary: Get a pet by ID
+      tags:
+        - animals
+      responses:
+        "200":
+          description: Pet details
+```
+
+  </TabItem>
+</Tabs>
+
+Here, the `GET /pets/{id}` operation will be placed in the `animals` interface, because the tag overrides the default path-based grouping.
+
+### Method Names
+
+In OpenAPI, `operationId` is an optional property in the specification’s metaschema. However, the OpenAPI v3 parser for Basketry requires every operation to define an `operationId`.
+
+Basketry uses `operationId` values as method names in the IR. This ensures that the generated code and documentation have predictable, human-readable method names. Without them, your Basketry pipeline will fail to parse the source file.
+
+<Tabs groupId="json-vs-yaml" defaultValue="json">
+  <TabItem value="json" label="JSON">
+
+```json title="petstore.json"
+{
+  "paths": {
+    "/pets/{id}": {
+      "get": {
+        "operationId": "getPetById",
+        "summary": "Get a pet by ID",
+        "responses": {
+          "200": {
+            "description": "Pet details"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+  </TabItem>
+  <TabItem value="yaml" label="YAML">
+
+```yaml title="petstore.yaml"
+paths:
+  /pets/{id}:
+    get:
+      operationId: getPetById
+      summary: Get a pet by ID
+      responses:
+        "200":
+          description: Pet details
+```
+
+  </TabItem>
+</Tabs>
+
+Here, the `getPetById` method will be defined on the `pets` interface, matching the `operationId` value.
+
+### Metadata
+
+OpenAPI 3.x supports vendor extensions—custom properties prefixed with `x-`—to store information not covered by the standard specification.
+
+In Basketry, these vendor extensions are stored in the IR as meta data. The parser removes the `x-` prefix so that rules and generators will see the property name directly (e.g., `vendor-extension` instead of `x-vendor-extension`). This approach improves cross-compatibility with other service definition languages (SDLs), since meta data is represented consistently regardless of the original SDL’s extension syntax.
+
+<Tabs groupId="json-vs-yaml" defaultValue="json">
+  <TabItem value="json" label="JSON">
+
+```json title="petstore.json"
+{
+  "paths": {
+    "/pets/{id}": {
+      "get": {
+        "operationId": "getPetById",
+        "x-rate-limit": 100,
+        "x-internal": true,
+        "responses": {
+          "200": {
+            "description": "Pet details"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+  </TabItem>
+  <TabItem value="yaml" label="YAML">
+
+```yaml title="petstore.yaml"
+paths:
+  /pets/{id}:
+    get:
+      operationId: getPetById
+      summary: Get a pet by ID
+      x-rate-limit: 100
+      x-internal: true
+      responses:
+        "200":
+          description: Pet details
+```
+
+  </TabItem>
+</Tabs>
+
+This would parse a metadata key of `rate-limit` with a value of `100` and a metadata key of `internal` with a value of `true`.
+
+### Request Body Names
+
+The OpenAPI 3.x specification does not include a standard way to name body parameters. This can be limiting for code generation, where meaningful parameter names improve readability and maintainability. To address this gap, many tools (including this parser) follow a de facto standard: adding the `x-codegen-request-body-name` vendor extension to an operation.
+
+When present, the parser uses the value of `x-codegen-request-body-name` as the body parameter’s name in the IR. If this extension is not provided, the parser defaults the name to `body`. Note that unlike other vendor extensions, `x-codegen-request-body-name` is not added to the IR’s metadata. It is used exclusively to determine the parameter name.
+
+<Tabs groupId="json-vs-yaml" defaultValue="json">
+  <TabItem value="json" label="JSON">
+
+```json title="petstore.json"
+{
+  "paths": {
+    "/pets": {
+      "post": {
+        "operationId": "createPet",
+        "x-codegen-request-body-name": "newPet",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Pet"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pet created"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+  </TabItem>
+  <TabItem value="yaml" label="YAML">
+
+```yaml title="petstore.yaml"
+paths:
+  /pets:
+    post:
+      operationId: createPet
+      x-codegen-request-body-name: newPet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Pet"
+      responses:
+        "201":
+          description: Pet created
+```
+
+  </TabItem>
+</Tabs>
+
+In this example, the `createPet` method will have a parameter named `newPet` instead of the default `body`.
+
+### Constants
+
+In OpenAPI 3.1, the specification provides a first-class way to define constants using the `const` keyword. This parser fully supports that approach.
+
+In OpenAPI 3.0, there is no official constant type. The de facto standard is to define an `enum` with a single member. When the parser encounters this pattern, it treats it as a constant in the IR rather than as an enum.
+
+This ensures that generators and rules can distinguish between true enumerations and fixed constant values, even when working with 3.0 specs.
+
+<Tabs groupId="openapi-version" defaultValue="3.0">
+  <TabItem value="3.0" label="OpenAPI 3.0">
+    <Tabs groupId="json-vs-yaml" defaultValue="json">
+      <TabItem value="json" label="JSON">
+
+```json title="petstore.json"
+{
+  "openapi": "3.0.0",
+  "components": {
+    "schemas": {
+      "Pet": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["available"]
+          },
+          "type": {
+            "type": "string",
+            "enum": ["dog", "cat", "bird"]
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+  </TabItem>
+  <TabItem value="yaml" label="YAML">
+
+```yaml title="petstore.yaml"
+openapi: 3.0.0
+components:
+  schemas:
+    Pet:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - available
+        type:
+          type: string
+          enum:
+            - dog
+            - cat
+            - bird
+```
+
+      </TabItem>
+    </Tabs>
+
+In this OpenAPI 3.0 example:
+
+- `status` is parsed as a **constant** because its enum has only one member (`available`).
+- `type` is parsed as a **true enum** because it has multiple possible values.
+
+</TabItem>
+<TabItem value="3.1" label="OpenAPI 3.1">
+  <Tabs groupId="json-vs-yaml" defaultValue="json">
+    <TabItem value="json" label="JSON">
+
+```json title="petstore.json"
+{
+  "openapi": "3.1.0",
+  "components": {
+    "schemas": {
+      "Pet": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "available"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["dog", "cat", "bird"]
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem value="yaml" label="YAML">
+
+```yaml title="petstore.yaml"
+openapi: 3.1.0
+components:
+  schemas:
+    Pet:
+      type: object
+      properties:
+        status:
+          type: string
+          const: available
+        type:
+          type: string
+          enum:
+            - dog
+            - cat
+            - bird
+```
+
+</TabItem></Tabs>
+
+In this OpenAPI 3.1 example:
+
+- `status` is parsed as a **constant** because it is defined as a `const` (`available`).
+- `type` is parsed as a **true enum** because it has multiple possible values.
+
+</TabItem></Tabs>
