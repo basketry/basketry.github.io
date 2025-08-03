@@ -25,9 +25,13 @@
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
+    "@basketry/json-schema": "^0.2.0-rc.0",
     "@docusaurus/module-type-aliases": "3.2.1",
     "@docusaurus/tsconfig": "3.2.1",
     "@docusaurus/types": "3.2.1",
+    "basketry": "^0.2.0-rc.2",
+    "marked": "^16.1.1",
+    "ts-node": "^10.9.2",
     "typescript": "~5.2.2"
   },
   "browserslist": {
