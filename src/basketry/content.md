@@ -1,6 +1,6 @@
 ---
 title: Basketry IR Specification v0.2
-slug: /specification
+slug: /specification/v0.2
 toc_max_heading_level: 4
 ---
 
