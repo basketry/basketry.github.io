@@ -6,7 +6,7 @@ const config: Config = {
   title: "Basketry",
   tagline:
     "The pluggable, service-oriented code-generation pipeline for any language",
-  favicon: "img/icon.svg",
+  favicon: "img/logo.svg",
 
   // Set the production url of your site here
   url: "https://basketry.io",
