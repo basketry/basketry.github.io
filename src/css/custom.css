@@ -4,6 +4,14 @@
  * work well for content-centric websites.
  */
 
+:root {
+  --ifm-font-family-base: 'Geist', sans-serif;
+}
+
+html, body {
+  font-family: var(--ifm-font-family-base);
+}
+
 /* You can override the default Infima variables here. */
 :root {
   --ifm-color-primary: #8e653e;

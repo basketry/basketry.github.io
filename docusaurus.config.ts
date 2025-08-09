@@ -32,6 +32,13 @@ const config: Config = {
 
   trailingSlash: false,
 
+  stylesheets: [
+    {
+      href: "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap",
+      type: "text/css",
+    },
+  ],
+
   presets: [
     [
       "classic",
