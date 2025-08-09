@@ -6,8 +6,7 @@ const config: Config = {
   title: "Basketry",
   tagline:
     "The pluggable, service-oriented code-generation pipeline for any language",
-  favicon:
-    "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧺</text></svg>",
+  favicon: "img/icon.svg",
 
   // Set the production url of your site here
   url: "https://basketry.io",
@@ -79,7 +78,7 @@ const config: Config = {
       title: "Basketry",
       logo: {
         alt: "Basketry Logo",
-        src: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧺</text></svg>",
+        src: "img/logo.svg",
       },
       items: [
         {
