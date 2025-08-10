@@ -114,13 +114,25 @@ class SpecBuilder {
     }
   }
 
+  private buildConstantDocs(memberValue: MemberValue): string {
+    if (memberValue.kind === "PrimitiveValue" && memberValue.constant) {
+      return ` Always ${this.buildPrimitiveConstant(memberValue.constant)}.`;
+    }
+
+    return "";
+  }
+
   private *buildPropertiesTable(type: Type): Iterable<string> {
     yield "| Field Name | Type | Description |";
     yield "| -------- | ---- | ----------- |";
     for (const property of type.properties) {
       yield `| ${property.name.value} | ${this.buildPropertyType(property)} | ${
         isRequired(property.value) ? "***REQUIRED.***" : ""
-      } ${this.buildPropertyDescription(property.description)} |`;
+      }${this.buildConstantDocs(
+        property.value
+      )} ${this.buildPropertyDescription(
+        property.description
+      )}${this.buildRulesBlock(property.value)} |`;
     }
   }
 
@@ -238,8 +250,56 @@ class SpecBuilder {
     return description
       .map((d) => `${this.marked(d.value).replace(/\n/g, "").trim()}`)
       .join("");
+  }
 
-    // return description.map((d) => this.marked(d.value)).join("<br/>");
+  private buildRulesBlock(memberValue: MemberValue): string {
+    if (memberValue.rules.length === 0) return "";
+
+    let block = "<br/>Rules:<br/><ul>";
+
+    for (const rule of memberValue.rules) {
+      switch (rule.id) {
+        case "ArrayMaxItems":
+          block += `<li>MUST have at most \`${rule.max.value}\` item${
+            rule.max.value === 1 ? "" : "s"
+          }.</li>`;
+          break;
+        case "ArrayMinItems":
+          block += `<li>MUST have at least \`${rule.min.value}\` item${
+            rule.min.value === 1 ? "" : "s"
+          }.</li>`;
+          break;
+        case "ArrayUniqueItems":
+          block += `<li>MUST have unique items.</li>`;
+          break;
+        case "NumberGT":
+          block += `<li>MUST be greater than \`${rule.value.value}\`.</li>`;
+          break;
+        case "NumberGTE":
+          block += `<li>MUST be greater than or equal to \`${rule.value.value}\`.</li>`;
+          break;
+        case "NumberLT":
+          block += `<li>MUST be less than \`${rule.value.value}\`.</li>`;
+          break;
+        case "NumberLTE":
+          block += `<li>MUST be less than or equal to \`${rule.value.value}\`.</li>`;
+          break;
+        case "StringMaxLength":
+          block += `<li>MUST have a length of at most \`${rule.length.value}\`.</li>`;
+          break;
+        case "StringMinLength":
+          block += `<li>MUST have a length of at least \`${rule.length.value}\`.</li>`;
+          break;
+        case "StringPattern":
+          block += `<li>MUST match the pattern \`${rule.pattern.value}\`.</li>`;
+          break;
+        case "StringFormat":
+          block += `<li>MUST be a valid \`${rule.format.value}\`.</li>`;
+          break;
+      }
+    }
+
+    return block + "</ul>";
   }
 
   private traverse(type: Type): Type[] {
