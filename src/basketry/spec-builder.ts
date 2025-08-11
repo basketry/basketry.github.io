@@ -16,7 +16,23 @@ import {
 } from "basketry";
 import { kebab, pascal } from "case";
 
+const outline = 4;
+
 const content = fs.readFileSync(path.join(__dirname, "content.md"), "utf8");
+
+// Function to get the version of @basketry/ir package
+function getBasketryIrVersion(): string {
+  try {
+    const packageJsonPath = require.resolve("@basketry/ir/package.json");
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+    return packageJson.version;
+  } catch (error) {
+    console.warn(
+      "Could not read @basketry/ir version, falling back to 'unknown'"
+    );
+    return "unknown";
+  }
+}
 
 export const specBuilder: (marked: (text: string) => string) => Generator =
   (marked) => async (service) => {
@@ -54,7 +70,7 @@ class SpecBuilder {
   async build(): Promise<File[]> {
     return [
       {
-        path: ["ir.md"],
+        path: ["ir.mdx"],
         contents: Array.from(this.buildFileContents(this.serviceType)).join(
           "\n"
         ),
@@ -63,9 +79,12 @@ class SpecBuilder {
   }
 
   private *buildFileContents(type: Type): IterableIterator<string> {
-    yield content;
+    const version = getBasketryIrVersion();
+    const processedContent = content.replace(/\{\{version\}\}/g, version);
+
+    yield processedContent;
     yield "";
-    yield "### 3.1 Structure";
+    yield `### ${outline}.1 Structure`;
 
     for (let i = 0; i < this.types.length; i++) {
       const t = this.types[i];
@@ -77,7 +96,7 @@ class SpecBuilder {
       yield* this.buildPropertiesTable(t);
     }
 
-    yield "### 3.2 Rules";
+    yield `### ${outline}.2 Rules`;
 
     for (let i = 0; i < this.rules.length; i++) {
       const t = this.rules[i];
@@ -89,7 +108,7 @@ class SpecBuilder {
       yield* this.buildPropertiesTable(t);
     }
 
-    yield "### 3.3 Object Rules";
+    yield `### ${outline}.3 Object Rules`;
 
     for (let i = 0; i < this.objectRules.length; i++) {
       const t = this.objectRules[i];
@@ -101,7 +120,7 @@ class SpecBuilder {
       yield* this.buildPropertiesTable(t);
     }
 
-    yield "### 3.4 Literals";
+    yield `### ${outline}.4 Literals`;
 
     for (let i = 0; i < this.literals.length; i++) {
       const t = this.literals[i];
@@ -155,13 +174,13 @@ class SpecBuilder {
 
     switch (true) {
       case typeIndex > -1:
-        return `3.1.${typeIndex + 1} ${pascal(type.name.value)}`;
+        return `${outline}.1.${typeIndex + 1} ${pascal(type.name.value)}`;
       case ruleIndex > -1:
-        return `3.2.${ruleIndex + 1} ${pascal(type.name.value)}`;
+        return `${outline}.2.${ruleIndex + 1} ${pascal(type.name.value)}`;
       case objectRuleIndex > -1:
-        return `3.3.${objectRuleIndex + 1} ${pascal(type.name.value)}`;
+        return `${outline}.3.${objectRuleIndex + 1} ${pascal(type.name.value)}`;
       case literalIndex > -1:
-        return `3.4.${literalIndex + 1} ${pascal(type.name.value)}`;
+        return `${outline}.4.${literalIndex + 1} ${pascal(type.name.value)}`;
     }
   }
 
