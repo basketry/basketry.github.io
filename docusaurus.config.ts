@@ -78,7 +78,7 @@ const config: Config = {
     announcementBar: {
       id: "basketry_0.2_rc",
       content:
-        '📣 Basketry 0.2 is now available as a Release Candidate! <a href="/blog/basketry-0.2-rc">Learn more</a> ← 👀',
+        '📣 Basketry 0.2 is now available! <a href="/blog/basketry-0_2-built-for-builders">Learn more</a> ← 👀',
       isCloseable: false,
     },
     navbar: {

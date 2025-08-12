@@ -130,3 +130,23 @@ This option provides a path to a Prettier configuration file. This generator for
   }
 }
 ```
+
+### `interfaceNomenclature`
+
+- Type: `string` - The nomenclature to use for interfaces.
+
+By default, the interfaces emitted by this generator will have names like `PetsService` or `OrdersService`. This behavior can be controlled with this option to specify the nomenclature to use for interfaces. The default is `service`, but if you supply a value like `client`, this generator will emit interface names like `PetClient` or `OrdersClient`.
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.json",
+  "parser": "@basketry/openapi-3",
+  "generators": ["@basketry/typescript"],
+  "output": "src",
+  "options": {
+    "typescript": {
+      "interfaceNomenclature": "client"
+    }
+  }
+}
+```
