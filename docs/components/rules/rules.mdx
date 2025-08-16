@@ -261,6 +261,40 @@ By default, violations of these rules will be displayed as errors. This may be o
 }
 ```
 
+### No Null Properties
+
+| Rule                                     |                                                                                                        |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `@basketry/rules/lib/no-null-properties` | Requires that properties may not be null. When this rule is applied, properties may still be optional. |
+
+#### Options
+
+By default, this rule is applied to all properties for all input and output types. This may be overridden with the `allowHttpVerbs` option to allow input types for certain HTTP verbs to be exempt from this rule.
+
+```json
+{
+  "rules": [
+    {
+      "rule": "@basketry/rules/lib/no-null-properties",
+      "options": { "allowHttpVerbs": ["PATCH"] }
+    }
+  ]
+}
+```
+
+By default, violations of this rule will be displayed as errors. This may be overridden with the `severity` option.
+
+```json
+{
+  "rules": [
+    {
+      "rule": "@basketry/rules/lib/no-null-properties",
+      "options": { "severity": "warning" }
+    }
+  ]
+}
+```
+
 ### Pluralization
 
 | Rule                                          |                                                                                                    |
@@ -278,7 +312,7 @@ By default, violations of this rule will be displayed as errors. This may be ove
 {
   "rules": [
     {
-      "rule": "@basketry/rules/lib/string-id",
+      "rule": "@basketry/rules/lib/pluralization",
       "options": { "severity": "warning" }
     }
   ]
