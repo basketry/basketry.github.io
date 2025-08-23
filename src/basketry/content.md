@@ -1,16 +1,16 @@
 ---
-title: IR Specification v{{version}}
+title: Specification v{{version}}
 slug: /specification/v0.2
 toc_max_heading_level: 4
 ---
 
-# Basketry IR Specification v{{version}}
+# Basketry Specification v{{version}}
 
 :::tip
 The authoritative JSON Schema version of this document can be found at [github.com/basketry/ir/blob/v{{version}}/src/schema.json](https://github.com/basketry/ir/blob/v{{version}}/src/schema.json)
 :::
 
-## 1 IR Specification
+## 1 Basketry Specification
 
 ## 1.1 Version {{version}}
 
@@ -85,4 +85,4 @@ Example: `"0:4;12;6;3;88;164"` → A range in source document index `0` from row
 
 Many (but not all) nodes in the Basketry IR support an optional `meta` property for including information not defined in the source document's SDL, such as parser-specific insights, vendor extensions, or contextual details. Its structure and meaning are parser-defined, so while most standard generators and rulesets may ignore it, specialized tooling can use it for tasks like domain-specific validation or generation enhancements. Metadata is never required when consuming the IR and serves as an escape hatch for carrying extra context without reducing the IR’s portability or general usability.
 
-## 4 Specification
+## 4 Intermediate Representation
