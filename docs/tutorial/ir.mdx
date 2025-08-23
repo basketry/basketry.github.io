@@ -1,18 +1,18 @@
 ---
-title: IR Specification v0.2.0
+title: Specification v0.2.1
 slug: /specification/v0.2
 toc_max_heading_level: 4
 ---
 
-# Basketry IR Specification v0.2.0
+# Basketry Specification v0.2.1
 
 :::tip
-The authoritative JSON Schema version of this document can be found at [github.com/basketry/ir/blob/v0.2.0/src/schema.json](https://github.com/basketry/ir/blob/v0.2.0/src/schema.json)
+The authoritative JSON Schema version of this document can be found at [github.com/basketry/ir/blob/v0.2.1/src/schema.json](https://github.com/basketry/ir/blob/v0.2.1/src/schema.json)
 :::
 
-## 1 IR Specification
+## 1 Basketry Specification
 
-## 1.1 Version 0.2.0
+## 1.1 Version 0.2.1
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14](https://www.rfc-editor.org/info/bcp14) [RFC2119](https://datatracker.ietf.org/doc/html/rfc2119) [RFC8174](https://datatracker.ietf.org/doc/html/rfc8174) when, and only when, they appear in all capitals, as shown here.
 
@@ -85,13 +85,12 @@ Example: `"0:4;12;6;3;88;164"` → A range in source document index `0` from row
 
 Many (but not all) nodes in the Basketry IR support an optional `meta` property for including information not defined in the source document's SDL, such as parser-specific insights, vendor extensions, or contextual details. Its structure and meaning are parser-defined, so while most standard generators and rulesets may ignore it, specialized tooling can use it for tasks like domain-specific validation or generation enhancements. Metadata is never required when consuming the IR and serves as an escape hatch for carrying extra context without reducing the IR’s portability or general usability.
 
-## 4 Specification
+## 4 Intermediate Representation
 
 
 ### 4.1 Structure
 #### 4.1.1 Service
-<p>Intermediate Representation (IR) of a service. The Basketry Intermediate Representation (IR) defines a structured, machine-oriented format that abstracts over various Interface Definition Languages (IDLs) and Service Description Languages (SDLs). This standardized, language-agnostic schema allows tooling to consistently interpret the core attributes and behaviors of a service, independent of its underlying definition format.</p>
-<p>Basketry IR is optimized for automated workflows, enabling code generation, documentation, validation, and custom analysis through reusable components without requiring developers to manually interact with the raw representation. While a typical Basketry pipeline translates human-friendly specifications (such as OpenAPI) into this intermediate format, the IR serves as a foundational layer for building new generators, rules, and other automation tools.</p>
+<p>The `Service` object is the root of a Basketry Intermediate Representation (IR) document. It defines the core attributes of an API service, including its name, version, source documents, and all types and interfaces it contains. The `Service` object provides a canonical, language-agnostic model of the service definition that plugins such as generators and rules can consume without requiring access to the original source files.</p>
 ##### Fields Specification
 | Field Name | Type | Description |
 | -------- | ---- | ----------- |
@@ -761,3 +760,195 @@ Many (but not all) nodes in the Basketry IR support an optional `meta` property 
 | kind | `"HttpArrayFormatLiteral"` | ***REQUIRED.*** Always `"HttpArrayFormatLiteral"`.  |
 | value | `"csv"` \| `"multi"` \| `"pipes"` \| `"ssv"` \| `"tsv"` | ***REQUIRED.***  |
 | loc | string |  The encoded location of this node in the source document(s). |
+## 5 Plugins
+Basketry is built on a modular plugin architecture. Plugins are independent processes that communicate with the Basketry orchestrator over [JSON-RPC 2.0](https://www.jsonrpc.org). Because of this design, plugins MAY be written in any programming language, and plugins written in different languages can be composed together in the same pipeline without issue.
+
+There are three types of plugins in Basketry:
+1. **Parsers:** convert raw API definitions (eg. OpenAPI) into Basketry’s intermediate representation (IR).
+1. **Rules:** validate the IR against governance requirements.
+1. **Generators:** produce artifacts (such as code or documentation) from the IR.
+
+Together, these three plugin types form a pipeline: parsers establish a consistent model, rules enforce quality, and generators create outputs. Each plugin type is invoked via a specific JSON-RPC method (`basketry.parse`, `basketry.validate`, `basketry.generate`).
+### 5.1 Parsers
+A Parser is a Basketry plugin responsible for converting raw source content into a structured intermediate representation (IR) represented by the `Service` type. Parsers are invoked via the `basketry.parse` JSON-RPC method, which provides the source file content and contextual metadata. A parser MUST return a `ParseResponse` containing either a `Service` object, a list of `Violations`, or both. If the input cannot be safely parsed, the service field in the response MUST be `undefined`. Violations MAY include errors, warnings, or informational messages; they SHOULD provide insight into structural or semantic issues in the input document. This separation of result and diagnostics allows downstream tools (e.g., validators and generators) to operate on partially valid input while preserving robust error reporting.
+#### 5.1.1 ParseRequest
+<p>The `ParseRequest` object defines the structure of a JSON-RPC request for invoking the `basketry.parse` method. This method is called by the Basketry CLI or orchestrator to initiate parsing of one or more input files by a plugin. It adheres to the [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification) and includes metadata and parameters needed to perform the parse operation.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| jsonrpc | `"2.0"` | ***REQUIRED.*** Always `"2.0"`. The JSON-RPC protocol version. |
+| id | string \| number | ***REQUIRED.*** A unique identifier for this request. The response from the plugin will include this same ID, allowing the caller to correlate requests and responses. |
+| method | `"basketry.parse"` | ***REQUIRED.*** Always `"basketry.parse"`. The name of the RPC method to invoke. |
+| params | [ParseParams](#512-parseparams) | ***REQUIRED.*** The parameters specific to the parse operation. |
+#### 5.1.2 ParseParams
+<p>The input payload passed to a plugin’s `basketry.parse` method. This object contains both the raw content to be parsed and metadata about the execution environment. Plugin authors should use this object to extract all necessary information to perform the parse operation.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| context | [ParserContext](#513-parsercontext) | ***REQUIRED.*** Contains the source text and its associated file path. This is the content the plugin is expected to parse. |
+| basketry | [BasketryContext](#543-basketrycontext) | ***REQUIRED.*** Contains runtime metadata. |
+#### 5.1.3 ParserContext
+<p>The Parser context object provides the core input to the plugin's parser: the raw source file and its path. This context isolates the entrypoint file that should be parsed and serves as the root for resolving any references to additional files (if applicable).</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| sourcePath | string | ***REQUIRED.*** The relative path to the entrypoint file, from the root of the project directory. |
+| sourceContent | string | ***REQUIRED.*** The full text content of the entrypoint file. |
+#### 5.1.4 ParseResponse
+<p>The Parse response object represents the response payload returned from a plugin’s `basketry.parse` method. It adheres to the [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification) and contains the result of the parsing operation including both the produced service definition and any violations encountered.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| jsonrpc | `"2.0"` | ***REQUIRED.*** Always `"2.0"`. The JSON-RPC protocol version. |
+| id | string \| number | ***REQUIRED.*** Echoes the ID of the corresponding request. Used by the caller to correlate responses. |
+| result | [ParseResult](#515-parseresult) | ***REQUIRED.*** The result of the parse operation, including a service definition (if successful) and a list of violations (if any). |
+#### 5.1.5 ParseResult
+<p>The parse result object encapsulates the output of a parsing operation. This includes the intermediate representation (IR) of the parsed service and any violations reported during the parsing process.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| service | [Service](#411-service) |  The parsed intermediate representation of the service. This is the structured output that downstream Basketry components will consume. This field is typically `undefined` if parsing fails entirely |
+| violations | [[Violation](#544-violation)] | ***REQUIRED.*** A list of violations encountered during parsing. Even if parsing is successful, this array may include warnings or informational messages to aid in debugging or quality assurance. If no issues were found, this should be an empty array. |
+### 5.2 Rules
+A Rule is a Basketry plugin used to enforce API governance by validating a parsed `Service` definition. Rules are invoked via the `basketry.validate` JSON-RPC method, which supplies the intermediate representation (IR) of the service along with any rule-specific configuration. Each rule MUST evaluate the provided `Service` and return a list of `Violation` objects describing any issues discovered. If no issues are found, the rule MUST return an empty array.
+
+Rules operate exclusively on the IR and MUST NOT require access to the original source files. Rules MUST NOT mutate the `Service` object they receive. Rule execution is stateless and isolated; rule plugins SHOULD NOT rely on execution order or shared memory. This allows rules to be composed and executed in arbitrary order within a validation pipeline.
+
+Validation results MAY include violations of varying severity (`"error"`, `"warning"`, or `"info"`), depending on the nature and impact of each issue. Rules MAY be configured via an options object passed in the request, allowing rule authors to expose tunable behavior.
+#### 5.2.1 ValidateRequest
+<p>The `ValidateRequest` object defines the structure of a JSON-RPC request for invoking the `basketry.validate` method. This method is called by the Basketry CLI or orchestrator to execute one or more rules against a parsed `Service`. It adheres to the [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification) and includes metadata and parameters needed to perform the validation operation.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| jsonrpc | `"2.0"` | ***REQUIRED.*** Always `"2.0"`. The JSON-RPC protocol version. |
+| id | string \| number | ***REQUIRED.*** A unique identifier for this request. The response from the plugin will include this same ID, allowing the caller to correlate requests and responses. |
+| method | `"basketry.validate"` | ***REQUIRED.*** Always `"basketry.validate"`. The name of the RPC method to invoke. |
+| params | [ValidateParams](#522-validateparams) | ***REQUIRED.*** The parameters specific to the validate operation. |
+#### 5.2.2 ValidateParams
+<p>The `ValidateParams` object defines the input parameters passed to the `basketry.validate` method.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| context | [RuleContext](#523-rulecontext) | ***REQUIRED.*** Contains the `Service` to be validated and any rule-specific options. |
+| basketry | [BasketryContext](#543-basketrycontext) | ***REQUIRED.*** Contains runtime metadata. |
+#### 5.2.3 RuleContext
+<p>The `RuleContext` object provides the inputs that a rule evaluates during validation.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| service | [Service](#411-service) | ***REQUIRED.*** The intermediate representation (IR) of the service, produced by a parser. This is the input that rules validate against. |
+| options | untyped |  Rule-specific configuration values. The structure and semantics of this field are defined by the rule itself. If omitted, empty, or improperly structured, the rule MUST apply its default behavior |
+#### 5.2.4 ValidateResponse
+<p>The `ValidateResponse` object represents the response payload returned from the `basketry.validate` method. It adheres to the [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification) and contains the result of executing a rule against a service definition.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| jsonrpc | `"2.0"` | ***REQUIRED.*** Always `"2.0"`. The JSON-RPC protocol version. |
+| id | string \| number | ***REQUIRED.*** Echoes the ID of the corresponding request. Used by the caller to correlate responses. |
+| result | [ValidateResult](#525-validateresult) | ***REQUIRED.*** The outcome of the validation, including all violations produced by the rule. |
+#### 5.2.5 ValidateResult
+<p>The `ValidateResult` object encapsulates the outcome of a rule’s validation run.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| violations | [[Violation](#544-violation)] | ***REQUIRED.*** A list of violations produced by the rule. If no violations are found, this array MUST be empty. |
+### 5.3 Generators
+A generator is a Basketry plugin responsible for producing artifacts (such as source code, documentation, or configuration files) from a parsed `Service` definition. Generators are invoked via the `basketry.generate` JSON-RPC method and return a collection of `File` objects. Each `File` object includes a relative path and full contents, representing what SHOULD be written to disk by the Basketry orchestrator.
+
+Generators MUST NOT write files directly to the file system, and MUST NOT perform any file system I/O during the generation process. Instead, generators MUST return all generated output through their response. This ensures that Basketry pipelines remain deterministic and portable. Generators MAY support configuration via the `options` property in the `GeneratorContext`, allowing for flexible and customizable outputs. However, generators MUST apply consistent defaults when no options are provided.
+
+A generator MUST be a pure function—given the same input `Service` and configuration options, it MUST always return the same set of files. This property guarantees that Basketry pipelines are idempotent, enabling reproducible builds and consistent results across environments.
+#### 5.3.1 GenerateRequest
+<p>The `GenerateRequest` object defines the structure of a JSON-RPC request for invoking the `basketry.generate` method. This method is called by the Basketry CLI or orchestrator to execute one or more generators against a parsed `Service`. It adheres to the [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification) and includes metadata and parameters needed to perform the generation operation.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| jsonrpc | `"2.0"` | ***REQUIRED.*** Always `"2.0"`. The JSON-RPC protocol version. |
+| id | string \| number | ***REQUIRED.*** A unique identifier for this request. The response from the plugin will include this same ID, allowing the caller to correlate requests and responses. |
+| method | `"basketry.generate"` | ***REQUIRED.*** Always `"basketry.generate"`. The name of the RPC method to invoke. |
+| params | [GenerateParams](#532-generateparams) | ***REQUIRED.*** The parameters specific to the generate operation. |
+#### 5.3.2 GenerateParams
+<p>The `GenerateParams` object defines the input parameters passed to the `basketry.generate` method. It provides the generator with the service definition to render.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| context | [GeneratorContext](#533-generatorcontext) | ***REQUIRED.*** Contains the parsed `Service` and generator-specific options. This is the primary input for code generation. |
+| basketry | [BasketryContext](#543-basketrycontext) | ***REQUIRED.*** Contains runtime metadata. |
+#### 5.3.3 GeneratorContext
+<p>The `GeneratorContext` object provides the inputs required by a generator to produce output artifacts.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| service | [Service](#411-service) | ***REQUIRED.*** The intermediate representation (IR) of the service, produced by a parser. This is the input used by the generator to create code, documentation, or other artifacts. |
+| options | untyped |  Generator-specific configuration values. The structure and semantics of this field are defined by the generator itself. If omitted, empty, or improperly structured, the generator MUST apply its default behavior |
+#### 5.3.4 GenerateResponse
+<p>The `GenerateResponse` object represents the response payload returned from the `basketry.generate` method. It adheres to the [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification) and contains the files produced by the generator.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| jsonrpc | `"2.0"` | ***REQUIRED.*** Always `"2.0"`. The JSON-RPC protocol version. |
+| id | string \| number | ***REQUIRED.*** Echoes the ID of the corresponding request. Used by the caller to correlate responses. |
+| result | [GenerateResult](#535-generateresult) | ***REQUIRED.*** The outcome of the generation operation, including all files produced. |
+#### 5.3.5 GenerateResult
+<p>The `GenerateResult` object encapsulates the output of a generator.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| files | [[File](#547-file)] | ***REQUIRED.*** An array of files produced by the generator. If no files are generated, this array MUST be empty. |
+### 5.4 Utility
+#### 5.4.1 ErrorResponse
+<p>The `ErrorResponse` object defines the structure of a JSON-RPC response returned when a request fails. It adheres to the [JSON-RPC 2.0 specification](https://www.jsonrpc.org/specification) and conveys error information instead of a result.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| jsonrpc | `"2.0"` | ***REQUIRED.*** Always `"2.0"`. The JSON-RPC protocol version. |
+| id | string \| number \| untyped | ***REQUIRED.*** Echoes the ID of the corresponding request. Used by the caller to correlate responses. If the request could not be parsed, this value SHOULD be `null`. |
+| error | [RpcError](#542-rpcerror) | ***REQUIRED.*** The error object providing details about the failure. |
+#### 5.4.2 RpcError
+
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| code | integer | ***REQUIRED.*** A machine-readable error code that identifies the type of error. Codes SHOULD follow the [JSON-RPC 2.0 standard error codes](https://www.jsonrpc.org/specification#error_object) when applicable, but MAY include custom values for Basketry-specific conditions. |
+| message | string | ***REQUIRED.*** A short human-readable description of the error. The message SHOULD be limited to a concise single sentence. |
+| data | untyped |  An optional value that contains additional information about the error. The structure of this value MAY be determined by the plugin. |
+#### 5.4.3 BasketryContext
+<p>The Basketry context provides metadata about the current Basketry execution environment. This context is useful for resolving relative paths, debugging plugin behavior, or adapting plugin behavior based on CLI invocation details.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| configPath | string |  Absolute path to the Basketry configuration file that initiated this run. |
+| projectDirectory | string | ***REQUIRED.*** Absolute path to the root of the Basketry project. All relative paths (e.g. source files, outputs) are resolved against this directory. |
+#### 5.4.4 Violation
+<p>A Violation represents a problem encountered during parsing or rule evaluation. It includes metadata to help developers and systems pinpoint and understand issues within the source document.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| sourcePath | string | ***REQUIRED.*** The path to the source document that contains the violation. This path is relative to the project directory. |
+| range | [Range](#545-range) | ***REQUIRED.*** The range of the violation in the source document. |
+| message | string | ***REQUIRED.*** A human-readable explanation of the violation, suitable for display in CLI output, logs, or developer tools. |
+| severity | `"error"` \| `"info"` \| `"warning"` | ***REQUIRED.*** Indicates the impact of the violation. Use `"error"` for blocking issues, `"warning"` for non-blocking recommendations, and `"info"` for helpful guidance. |
+| code | string | ***REQUIRED.*** A unique identifier for the type of violation. This value SHOULD be a short, machine-readable string that can be used to identify the violation. |
+| link | string |  A URL that provides additional documentation or context for the violation. MUST be a valid URI if provided. Useful for pointing to rule definitions, spec references, or troubleshooting guides. |
+#### 5.4.5 Range
+<p>The `Range` object defines a span within a source document. A `Range` is the decoded representation of the `loc` property found in the `Service` IR and provides precise information about where a violation or element occurs in the source text.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| start | [Position](#546-position) | ***REQUIRED.*** The position of the first character in the range. |
+| end | [Position](#546-position) | ***REQUIRED.*** The position of the last character in the range. |
+#### 5.4.6 Position
+<p>The `Position` object defines a single point in a source document.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| line | integer | ***REQUIRED.*** The 1-based line number of the position. The first line in a document is `1`. |
+| column | integer | ***REQUIRED.*** The 1-based column number of the position within the line. The first column is `1`. |
+| offset | integer | ***REQUIRED.*** The 0-based character offset from the start of the document. The first character is `0`. |
+#### 5.4.7 File
+<p>The `File` object represents a single file produced by a generator.</p>
+##### Fields Specification
+| Field Name | Type | Description |
+| -------- | ---- | ----------- |
+| path | [string] | ***REQUIRED.*** The path to the file, relative to the project directory. This MUST include the file name and extension. The array form allows paths to be represented in a normalized, platform-independent manner (e.g., ["src", "models", "user.ts"]). |
+| contents | string | ***REQUIRED.*** The complete textual contents of the file. Generators MUST encode the entire file body as a UTF-8 string. |
