@@ -387,6 +387,10 @@ class SpecBuilder extends DocumentationBuilder {
 
     yield `## ${this.outline} Plugins`;
 
+    yield ":::info";
+    yield "Plugins based on JSON-RPC 2.0 are supported in Basketry v0.2.1 and higher with the `--engine rpc` flag. Without this flag, Basketry will use the Node modules plugins only without any change in behavior. The RPC engine also supports Node module plugins, but with a deprecation warning. Basketry v0.3.0 will use the RPC engine by default and remove support for Node module plugins entirely.";
+    yield ":::";
+
     yield "Basketry is built on a modular plugin architecture. Plugins are independent processes that communicate with the Basketry orchestrator over [JSON-RPC 2.0](https://www.jsonrpc.org). Because of this design, plugins MAY be written in any programming language, and plugins written in different languages can be composed together in the same pipeline without issue.";
     yield "";
     yield "There are three types of plugins in Basketry:";
