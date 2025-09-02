@@ -1,0 +1,32 @@
+---
+slug: /components/@basketry/typespec
+title: Typespec
+description: Parse Typespec documents
+sidebar_position: 3
+---
+
+import { Install } from "@site/src/components/package-manager";
+import { Contribute } from "@site/src/components/links";
+
+<Contribute repo="typespec" />
+
+:::info
+This package is still in development and may change.
+:::
+
+This parser lets you use Typespec as the source for a Basketry project. Add it to your pipeline to generate code, documentation, or apply rules directly from your Typespec definition.
+
+## Install
+
+{/* <Install package="@basketry/typespec" /> */}
+
+This package has not yet been released.
+
+## Basic Usage
+
+```json title="basketry.config.json"
+{
+  "source": "petstore.tsp",
+  "parser": "basketry-typespec"
+}
+```
