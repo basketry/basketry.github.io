@@ -15,7 +15,7 @@ See: https://github.com/basketry/examples/tree/main/schemas
 | [`@basketry/openapi-3`](/docs/components/@basketry/openapi-3)     | [![main](https://img.shields.io/npm/v/@basketry/openapi-3)](https://www.npmjs.com/package/@basketry/openapi-3)     | Parser for [OpenAPI v3](https://swagger.io/docs/specification/) docs (JSON and YAML)             |
 | [`@basketry/json-schema`](/docs/components/@basketry/json-schema) | [![main](https://img.shields.io/npm/v/@basketry/json-schema)](https://www.npmjs.com/package/@basketry/json-schema) | Parser for [JSON Schema](https://json-schema.org/) docs.                                         |
 | [`@basketry/swagger-2`](/docs/components/@basketry/swagger-2)     | [![main](https://img.shields.io/npm/v/@basketry/swagger-2)](https://www.npmjs.com/package/@basketry/swagger-2)     | Parser for [Swagger/OpenAPI v2](https://swagger.io/docs/specification/2-0/) docs (JSON and YAML) |
-| [`@basketry/typespec`](/docs/components/@basketry/typespec)       |                                                                                                                    | Parser for [TypeSpec](https://typespec.io) docs                                                  |
+| [`@basketry/typespec`](/docs/components/@basketry/typespec)       | [![main](https://img.shields.io/npm/v/@basketry/typespec)](https://www.npmjs.com/package/@basketry/typespec)       | Parser for [TypeSpec](https://typespec.io) docs                                                  |
 
 ### Rules
 
