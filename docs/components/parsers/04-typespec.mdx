@@ -10,19 +10,17 @@ import { Contribute } from "@site/src/components/links";
 
 <Contribute repo="typespec" />
 
-:::info
-This package is still in development and may change.
-:::
-
-This parser lets you use TypeSpec as the source for a Basketry project. Add it to your pipeline to generate code, documentation, or apply rules directly from your TypeSpec definition.
+This parser lets you use [TypeSpec](https://typespec.io) as the source for a Basketry project. Add it to your pipeline to generate code, documentation, or apply rules directly from your TypeSpec definition.
 
 ## Install
 
-{/* <Install package="@basketry/typespec" /> */}
-
-This package has not yet been released.
+<Install package="@basketry/typespec@alpha" />
 
 ## Basic Usage
+
+:::info
+This plugin only supports JSON-RPC. Run Basketry with the experimental RPC engine: `npx basketry --engine rpc`
+:::
 
 ```json title="basketry.config.json"
 {
