@@ -9,15 +9,151 @@ description: What's next for Basketry
 Basketry’s mission is to make API automation predictable, portable, and accessible regardless of language, runtime, or organization size.
 :::
 
-## 0.2.0 – July 2025 (released)
+## Upcoming
 
-### Theme: Basketry on Basketry
+### 0.3.0-rc - June 2026 (planned)
+
+#### Theme: Evolving the IR
+
+The Basketry Intermediate Representation (IR) has proven to be the right foundation for API automation: a schema-defined, language-agnostic contract that all components can build around. As Basketry has moved from early alpha usage into real-world production stacks, users have validated the core model while also uncovering the places where the IR needs to become more expressive.
+
+This milestone focuses on incorporating that real-world feedback into the next version of the IR. The goal is to close the gaps that appear when teams use Basketry for production APIs across different protocols, schema styles, and generator targets. The result will be a release candidate for the next-generation IR, giving plugin authors and production users a clear target for migration and feedback.
+
+#### Key Features
+
+- **Richer Value Modeling:**
+  The IR will support more expressive value shapes, including nested arrays, tuples, array literals, object literals, and defaults for arrays and complex types.
+
+- **Unified Definition Model:**
+  Types, enums, unions, and aliases will move toward a single definition model, making named schema elements easier to resolve, inspect, and transform.
+
+- **Expanded Protocol Support:**
+  Protocol-specific details will become more precise and composable, including support for cookie-based HTTP locations, status-code-to-response-type mappings, JSON-RPC, and first-class streaming semantics.
+
+- **Richer Metadata:**
+  The IR will gain support for examples, deprecation messages, enum member values, and synthetic literals. These additions help generators produce better output and help rules distinguish between source-authored content and parser-synthesized structure.
+
+- **Clearer Version Semantics:**
+  The IR will represent full semantic versions, including prerelease and build metadata, so tools can reason more precisely about compatibility and generated artifacts.
+
+### 0.3.0 – September 2026 (planned)
+
+#### Theme: From RC to Release
+
+After the 0.3.0 release candidate, the focus shifts from defining the evolved IR to applying it across the Basketry ecosystem. First-party parsers, rules, generators, and examples will be upgraded to use the new model, turning the release candidate into the default foundation for production code generation pipelines.
+
+This milestone will also leave room for the practical refinements that emerge during implementation. As the new IR is exercised across real components and real API contracts, small adjustments may be made to improve clarity, consistency, and long-term maintainability before the final 0.3.0 release.
+
+#### Key Features
+
+- **First-Party Component Upgrades:**
+  Core parsers, rules, generators, and utilities will be updated to consume and emit the evolved IR.
+
+- **End-to-End Pipeline Validation:**
+  Basketry’s standard code generation workflows will be exercised against the new IR, ensuring the model works across real parsers, rules, and generator targets.
+
+- **Migration Guidance:**
+  Documentation will help users and plugin authors understand the IR changes, update existing components, and adopt the new model with confidence.
+
+- **Example Project Updates:**
+  Basketry examples will be updated to demonstrate the new IR in practical workflows, including configuration, generated output, and component usage.
+
+- **Final IR Refinements:**
+  Feedback from first-party migration and early adopter usage will be incorporated before the final 0.3.0 release.
+
+- **Compatibility and Deprecation Path:**
+  Basketry will document compatibility expectations for the previous IR and provide guidance for users who need time to migrate.
+
+### 1.0.0 – December 2026 (planned)
+
+#### Theme: Native Core Engine
+
+Basketry graduates to stable 1.0 by moving its core engine from a TypeScript runtime implementation to a compiled, native CLI. This change removes Node.js as a runtime requirement for the core toolchain, making Basketry easier to install, easier to embed, and more predictable across local development, CI, and production automation environments.
+
+The 1.0 release will focus on the core CLI and the first-party components that are broadly useful across language ecosystems: parsers, rules, and other language-neutral infrastructure. Generators remain free to be authored in the language that best fits their target ecosystem. A TypeScript generator may still be written in TypeScript, a Golang generator may be written in Golang, and a Python generator may be written in Python, as long as each component interoperates with Basketry through the documented component protocol.
+
+This release does not change Basketry’s language-neutral component model. Components will continue to communicate with the core over standard input/output using JSON-RPC messages defined by Basketry’s JSON Schema contracts. Existing package-manager workflows, including npm, may continue to provide convenient installation paths even as the core itself becomes a compiled binary.
+
+#### Key Features
+
+- **Native Core CLI:**
+  The Basketry CLI will be ported to a compiled implementation, enabling a portable binary that runs consistently across major platforms without requiring Node.js as the execution runtime.
+
+- **Runtime-Free Core Execution:**
+  Basketry’s core orchestration, configuration loading, pipeline execution, and component invocation will run without depending on a language-specific runtime framework.
+
+- **First-Party Parsers Ported:**
+  Core parsers such as OpenAPI, Swagger, and JSON Schema will be ported alongside the CLI so standard Basketry pipelines can run through the native core.
+
+- **First-Party Rules Ported:**
+  Common rule packages will be ported to the native core, giving teams a runtime-free path for validating API contracts in local development and CI.
+
+- **JSON-RPC-over-stdio Component Protocol:**
+  The existing component protocol will remain the compatibility boundary between Basketry core and external components. Components communicate over standard input/output using schema-defined JSON-RPC messages.
+
+- **Language-Neutral Component Authoring:**
+  Parsers, generators, and rules can be implemented in any language capable of implementing the component protocol. The native core does not make Basketry a single-language ecosystem.
+
+- **Ecosystem-Friendly Installation:**
+  Basketry will continue to support familiar installation workflows, including package-manager wrappers where appropriate, while the underlying core runs as a compiled CLI.
+
+- **Stable 1.x Interfaces:**
+  The IR schema and component protocol will be versioned and stable throughout the 1.x lifecycle, giving users and component authors a reliable foundation for long-term adoption.
+
+### Beyond 1.0
+
+With the 1.0 release, Basketry will deliver a stable, portable, and language-agnostic foundation for code generation pipelines. The core will be ready for wide adoption across diverse development environments—but the real opportunity lies in what comes next.
+
+#### 🌟 Core Principles
+
+Basketry will always be a locally installable, open-source toolchain—built for CI, offline development, and long-term stability. Whether you’re running it on your laptop or inside a build pipeline, Basketry is designed to work without requiring a hosted service, API token, or vendor login. The entire ecosystem is packaged and versioned in a way that puts ownership in the hands of the end user. No phone-home behavior, no hidden dependencies, and no cloud lock-in.
+
+Because Basketry is distributed as installable binaries and packages—licensed under MIT—you can rely on it indefinitely. You’ll always be able to install, fork, pin, or run a specific version of the CLI and its plugins, even if the project changes direction in the future. While breaking changes will happen as the ecosystem evolves, everything is semantically versioned and intentionally pluggable, so teams can adopt updates on their own schedule.
+
+##### Commitments
+
+- **Open & Forkable:**
+  Published under the MIT license, with no proprietary core. The community can always fork, extend, or self-publish without restriction.
+
+- **Installable & Offline-Capable:**
+  Distributed as binaries and language-specific packages (npm, pip, etc.) that run locally or in CI—no internet connection or central service required.
+
+- **No Lock-In:**
+  No mandatory accounts, SaaS dependencies, or hosted-only features. The CLI and plugin system are designed for full autonomy and portability.
+
+- **Composable by Design:**
+  Every plugin follows a documented, language-agnostic interface (stdio) and is versioned independently to support selective upgrades and ecosystem stability.
+
+- **Transparent Change Process:**
+  Breaking changes are intentional, versioned, and documented. You’re never forced to upgrade until you're ready.
+
+#### 🚀 Optional Cloud Experiences
+
+While the core stays local, some workflows thrive in the cloud. We’re doing discovery for an optional Basketry Studio: a hosted environment for designing, linting, and generating APIs with collaborative editing and AI-assisted authoring (think _Basketry Copilot_). Studio would likely include paid add-ons, but would _never_ be a requirement, and would _always_ export the exact same artifacts the CLI produces locally.
+
+#### 🧩 Ecosystem & Integrations
+
+IDE Extensions – Expanding beyond the existing VS Code plug-in to editors such as Neovim, Eclipse, JetBrains, and more, so every developer gets in-editor validation and code-gen.
+
+Plugin Registry – A public catalog where maintainers can publish generators, parsers, and rules, discoverable via metadata and semantic version ranges.
+
+Composable Engine for Niche Tools – Basketry aims to be the stable, language-agnostic engine that specialty API-automation products can embed. By offloading SDL parsing and cross-language code-gen to Basketry, small teams can focus on their unique value while reaching a broader set of service-definition languages—without giving up control of their own roadmaps.
+
+#### 🔭 Expanding Technical Scope
+
+Basketry’s roots are in REST. Future milestones will extend first-class support to event-driven architectures, xRPC/Connect-style contracts, and eventual-consistency patterns—all expressed through the same IR and plugin ecosystem.
+
+## Completed
+
+### 0.2.0 – July 2025 (released)
+
+#### Theme: Basketry on Basketry
 
 We’re redefining the Intermediate Representation (IR) by expressing it in JSON Schema. This formalizes the IR as a machine-readable contract, enabling consistent tooling across languages and environments. With this schema-first approach, we can now use Basketry itself to generate TypeScript definitions, documentation, and language-agnostic representations from the IR spec. (Dogfooding FTW! 🎉)
 
 This work lays the foundation for a truly polyglot Basketry ecosystem. Today, Basketry can generate code in any language, but all generators must be implemented as TypeScript modules. By formally defining the IR in JSON Schema, we move toward a future where generators, rules, and other components can be built in any language, without relying on TypeScript or Node.js. This opens the door to broader community contributions, especially from developers who specialize in ecosystems like Python, Go, or Rust, and removes a key barrier to adoption and collaboration outside the TypeScript world.
 
-### Key Features
+#### Key Features
 
 - **Redesigned Intermediate Representation (IR):**
   The IR is defined using JSON Schema, providing a precise, versionable contract for all Basketry tooling.
@@ -40,9 +176,9 @@ This work lays the foundation for a truly polyglot Basketry ecosystem. Today, Ba
 - **CLI Improvements:**
   New `--version` command, renamed `--validate` to `--dry-run`.
 
-## 0.3.0 – September 2025 (planned)
+### 0.2.2 – September 2025 (released)
 
-### Theme: Plugins via `stdio`
+#### Theme: Plugins via `stdio`
 
 Currently, Basketry loads plugins (generators, rules, etc.) by requiring them as Node.js modules. While this works well for Node-based workflows, it creates a major blocker for developers working in other ecosystems. Non-Node environments, such as Go, Python, or Rust, shouldn't need to install Node.js and manage npm packages just to use or build Basketry components.
 
@@ -50,7 +186,7 @@ To address this, we're introducing `stdio`-based component execution, allowing p
 
 This milestone is a major step toward making Basketry truly language-agnostic — not just in what it generates, but in what it's built with.
 
-### Key Features
+#### Key Features
 
 - **`stdio`-based plugin execution:**
   Generators, rules, and other plugins can be implemented as standalone executables that communicate via stdin/stdout, decoupling them from the Node.js runtime.
@@ -63,79 +199,3 @@ This milestone is a major step toward making Basketry truly language-agnostic �
 
 - **Component protocol specification:**
   The communication protocol for `stdio` components will be formally defined and versioned to ensure forward compatibility and tooling support.
-
-## 1.0.0 – 2026 (planned)
-
-### Theme: Port Core to Rust
-
-Basketry graduates to stable 1.0 by moving its core from TypeScript to Rust and distributing pre-compiled binaries for all major platforms. This change eliminates Node.js as a runtime dependency, delivers significant performance and memory-footprint gains, and makes installation friction-free for every ecosystem.
-
-Each language community will install Basketry the way they expect, npm, pip, gem, nuget, Homebrew, Chocolatey, direct tarballs, etc.—all of which wrap the same signed Rust binary. TypeScript-specific conveniences (helpers, typings, ESLint rules, etc.) will live in a separate `@basketry/helpers` package, keeping the core lean and language-agnostic. Similar helpers can be built for other languages and distributed as needed.
-
-With binaries in place, we can finish deprecating the legacy Node-module plugin pathway introduced in 0.x and rely solely on the stdio component protocol. Parsers and rulesets (e.g., OpenAPI v3) are inherently language-agnostic and will be ported to Rust for portability and performance; generators remain free to be authored in their target languages.
-
-### Key Features
-
-- **Rust-based Core CLI:**
-  The Basketry core is rewritten in Rust to enable a single, portable binary that runs consistently across all major platforms—no Node.js or runtime setup required.
-
-- **Native Binary Distribution:**
-  Basketry will be available through ecosystem-native channels like Homebrew, Chocolatey, apt, and as language-specific wrappers (e.g., npm, pip, gem, nuget), making installation seamless for every kind of developer.
-
-- **Typed Helper Packages Extracted:**
-  TypeScript-specific functionality will be moved into a separate `@basketry/helpers` package, allowing the core CLI to remain language-neutral while still supporting strong ergonomics where needed.
-
-- **Parsers & Rules Ported to Rust:**
-  Core components like OpenAPI and JSON Schema parsers, along with common rule engines, will be implemented in Rust to ensure they're accessible and consistent regardless of the developer’s language environment.
-
-- **Unified Plugin Execution via `stdio`:**
-  All plugins will use the cross-language `stdio` protocol, removing the final dependency on Node.js and ensuring that any plugin, written in any language, can integrate cleanly into the Basketry pipeline.
-
-- **Ecosystem-Native Installability:**
-  Developers can install and use Basketry with the tools they already know, whether that’s `npm install basketry`, `pip install basketry`, or downloading a platform-specific binary—no extra runtimes or bootstrapping required.
-
-- **Stable, Language-Agnostic Interfaces:**
-  The IR schema and stdio protocol will be versioned and stable throughout the 1.x lifecycle, enabling reliable integration with tools, plugins, and pipelines across language boundaries.
-
-## Beyond 1.0
-
-With the 1.0 release, Basketry will deliver a stable, portable, and language-agnostic foundation for code generation pipelines. The core will be ready for wide adoption across diverse development environments—but the real opportunity lies in what comes next.
-
-### 🌟 Core Principles
-
-Basketry will always be a locally installable, open-source toolchain—built for CI, offline development, and long-term stability. Whether you’re running it on your laptop or inside a build pipeline, Basketry is designed to work without requiring a hosted service, API token, or vendor login. The entire ecosystem is packaged and versioned in a way that puts ownership in the hands of the end user. No phone-home behavior, no hidden dependencies, and no cloud lock-in.
-
-Because Basketry is distributed as installable binaries and packages—licensed under MIT—you can rely on it indefinitely. You’ll always be able to install, fork, pin, or run a specific version of the CLI and its plugins, even if the project changes direction in the future. While breaking changes will happen as the ecosystem evolves, everything is semantically versioned and intentionally pluggable, so teams can adopt updates on their own schedule.
-
-#### Commitments
-
-- **Open & Forkable:**
-  Published under the MIT license, with no proprietary core. The community can always fork, extend, or self-publish without restriction.
-
-- **Installable & Offline-Capable:**
-  Distributed as binaries and language-specific packages (npm, pip, etc.) that run locally or in CI—no internet connection or central service required.
-
-- **No Lock-In:**
-  No mandatory accounts, SaaS dependencies, or hosted-only features. The CLI and plugin system are designed for full autonomy and portability.
-
-- **Composable by Design:**
-  Every plugin follows a documented, language-agnostic interface (stdio) and is versioned independently to support selective upgrades and ecosystem stability.
-
-- **Transparent Change Process:**
-  Breaking changes are intentional, versioned, and documented. You’re never forced to upgrade until you're ready.
-
-### 🚀 Optional Cloud Experiences
-
-While the core stays local, some workflows thrive in the cloud. We’re doing discovery for an optional Basketry Studio: a hosted environment for designing, linting, and generating APIs with collaborative editing and AI-assisted authoring (think _Basketry Copilot_). Studio would likely include paid add-ons, but would _never_ be a requirement, and would _always_ export the exact same artifacts the CLI produces locally.
-
-### 🧩 Ecosystem & Integrations
-
-IDE Extensions – Expanding beyond the existing VS Code plug-in to editors such as Neovim, Eclipse, JetBrains, and more, so every developer gets in-editor validation and code-gen.
-
-Plugin Registry – A public catalog where maintainers can publish generators, parsers, and rules, discoverable via metadata and semantic version ranges.
-
-Composable Engine for Niche Tools – Basketry aims to be the stable, language-agnostic engine that specialty API-automation products can embed. By offloading SDL parsing and cross-language code-gen to Basketry, small teams can focus on their unique value while reaching a broader set of service-definition languages—without giving up control of their own roadmaps.
-
-### 🔭 Expanding Technical Scope
-
-Basketry’s roots are in REST. Future milestones will extend first-class support to event-driven architectures, xRPC/Connect-style contracts, and eventual-consistency patterns—all expressed through the same IR and plugin ecosystem.
